@@ -85,8 +85,12 @@ const Index = () => {
             {/* Middle Section */}
             <div className="lg:col-span-6">
               <CommunityBanner />
-              <StatisticsCard />
-              <GroupMessageCard />
+              
+              {/* Two-column layout for Statistics and Group Message */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <StatisticsCard />
+                <GroupMessageCard />
+              </div>
             </div>
             
             {/* Right Sidebar */}

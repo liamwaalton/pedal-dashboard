@@ -17,7 +17,7 @@ const friends: Friend[] = [
 
 const GroupMessageCard = () => {
   return (
-    <div className="bike-card animate-fade-in">
+    <div className="bike-card h-full flex flex-col animate-fade-in">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-sm text-gray-500">Group Messasge</h2>
         <button className="text-bike-blue">
@@ -27,7 +27,7 @@ const GroupMessageCard = () => {
       
       <h3 className="text-sm font-medium text-gray-500 mb-2">Your Friends</h3>
       
-      <div className="space-y-3">
+      <div className="space-y-3 flex-grow">
         {friends.map((friend) => (
           <div key={friend.id} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -46,7 +46,7 @@ const GroupMessageCard = () => {
         ))}
       </div>
       
-      <div className="relative mt-6">
+      <div className="relative mt-auto pt-2">
         <input
           type="text"
           placeholder="Send Message ..."

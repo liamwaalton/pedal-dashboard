@@ -5,7 +5,7 @@ import StatisticsChart from './StatisticsChart';
 
 const StatisticsCard = () => {
   return (
-    <div className="bike-card mb-6 animate-fade-in">
+    <div className="bike-card h-full flex flex-col animate-fade-in">
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-sm text-gray-500">Statics</h2>
         <div className="relative">
@@ -18,9 +18,11 @@ const StatisticsCard = () => {
       <h3 className="text-xl font-semibold text-gray-800">Excellent Men !</h3>
       <p className="text-sm text-gray-500 mb-2">You had the most records today</p>
       
-      <StatisticsChart />
+      <div className="flex-grow">
+        <StatisticsChart />
+      </div>
       
-      <div className="flex justify-between mt-4">
+      <div className="flex justify-between mt-auto pt-2">
         <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-full">
           <div className="bg-bike-orange rounded-full p-1">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

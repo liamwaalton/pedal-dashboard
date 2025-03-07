@@ -13,13 +13,13 @@ const SidebarNavItem = ({ icon, label, active = false, onClick }: SidebarNavItem
   return (
     <button
       className={cn(
-        "nav-item w-full text-left",
-        active && "active"
+        "nav-item w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-bike-blue hover:text-white transition-all",
+        active && "bg-bike-blue text-white shadow-md"
       )}
       onClick={onClick}
     >
       {icon}
-      <span>{label}</span>
+      <span className="font-medium">{label}</span>
     </button>
   );
 };
