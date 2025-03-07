@@ -17,7 +17,7 @@ const friends: Friend[] = [
 
 const GroupMessageCard = () => {
   return (
-    <div className="bike-card h-full flex flex-col animate-fade-in">
+    <div className="bike-card h-[330px] flex flex-col animate-fade-in">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-sm text-gray-500">Group Messasge</h2>
         <button className="text-bike-blue">

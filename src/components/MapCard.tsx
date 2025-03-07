@@ -5,7 +5,7 @@ import { Map, Navigation } from 'lucide-react';
 
 const MapCard = () => {
   return (
-    <div className="bike-card relative animate-fade-in">
+    <div className="bike-card relative animate-fade-in h-[400px] flex flex-col">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-sm text-gray-500">Live Location</h2>
         <div className="text-bike-blue">
@@ -13,7 +13,7 @@ const MapCard = () => {
         </div>
       </div>
       
-      <div className="h-56 rounded-xl overflow-hidden relative mb-4 group">
+      <div className="rounded-xl overflow-hidden relative mb-4 flex-grow group">
         {/* Stylish map implementation */}
         <div className="absolute inset-0 bg-gradient-to-br from-bike-blue/10 to-bike-blue/40 z-10"></div>
         
@@ -67,7 +67,7 @@ const MapCard = () => {
         </div>
       </div>
       
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mt-auto">
         <div>
           <p className="text-xs text-gray-500">Your destination</p>
           <div className="flex items-center gap-1">

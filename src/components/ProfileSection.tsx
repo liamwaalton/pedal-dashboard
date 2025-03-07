@@ -35,9 +35,9 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
 
   if (!isLoggedIn) {
     return (
-      <div className="bike-card mb-6 animate-fade-in">
+      <div className="bike-card mb-6 animate-fade-in h-[400px] flex flex-col">
         <h2 className="text-sm text-gray-500 mb-4">Login</h2>
-        <div className="flex flex-col items-center justify-center py-6 gap-4">
+        <div className="flex flex-col items-center justify-center py-6 gap-4 flex-grow">
           <div className="flex justify-center">
             <svg viewBox="0 0 40 40" width="80" height="80" xmlns="http://www.w3.org/2000/svg">
               <circle cx="20" cy="20" r="18" fill="#FC4C02" />
@@ -60,7 +60,7 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
   }
 
   return (
-    <div className="bike-card mb-6 animate-fade-in">
+    <div className="bike-card mb-6 animate-fade-in h-[400px] flex flex-col">
       <h2 className="text-sm text-gray-500 mb-4">Profile Info</h2>
       <div className="flex items-center gap-4 mb-6">
         <div className="h-14 w-14 bg-gray-100 rounded-full overflow-hidden">
@@ -80,11 +80,11 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
         </div>
       </div>
       
-      <div className="mb-6">
+      <div className="mb-6 flex-grow flex items-center justify-center">
         <img 
           src="/lovable-uploads/e82c7da6-61e8-4d1d-bf72-cc5d1335ed67.png" 
           alt="Bike"
-          className="w-full h-auto object-contain max-h-32 opacity-0"
+          className="max-w-full h-auto object-contain max-h-32 opacity-0"
           onLoad={(e) => {
             e.currentTarget.style.animation = 'fade-in 0.5s forwards';
             e.currentTarget.style.opacity = '1';
@@ -107,7 +107,7 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
         </div>
       </div>
       
-      <div className="flex space-x-2">
+      <div className="flex space-x-2 mt-auto">
         <Button className="bike-button-orange flex-1">Go To Shop</Button>
         <Button 
           variant="outline" 

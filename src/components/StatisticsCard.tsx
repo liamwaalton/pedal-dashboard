@@ -5,7 +5,7 @@ import StatisticsChart from './StatisticsChart';
 
 const StatisticsCard = () => {
   return (
-    <div className="bike-card h-full flex flex-col animate-fade-in">
+    <div className="bike-card h-[330px] flex flex-col animate-fade-in">
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-sm text-gray-500">Statics</h2>
         <div className="relative">
