@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { LogIn } from 'lucide-react';
+import { LogIn, LogOut } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProfileSectionProps {
   name?: string;
@@ -12,11 +13,24 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
   // This would normally come from authentication context
   // For demo purposes, we'll use local state that can be toggled
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { toast } = useToast();
 
   const handleLoginWithStrava = () => {
     // In a real implementation, this would redirect to Strava OAuth
     // For now, we'll just toggle the state for demonstration
     setIsLoggedIn(true);
+    toast({
+      title: "Successfully logged in",
+      description: "You've been logged in with Strava",
+    });
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    toast({
+      title: "Successfully logged out",
+      description: "You've been logged out",
+    });
   };
 
   if (!isLoggedIn) {
@@ -98,8 +112,9 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
         <Button 
           variant="outline" 
           className="flex-none" 
-          onClick={() => setIsLoggedIn(false)}
+          onClick={handleLogout}
         >
+          <LogOut size={18} className="mr-1" />
           Logout
         </Button>
       </div>
