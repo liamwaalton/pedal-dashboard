@@ -45,20 +45,37 @@ const CommunityBanner = () => {
         <div className="w-4 h-16 bg-yellow-700 absolute bottom-0 left-6" />
       </div>
       
-      {/* Person on bike */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
-        {/* This would ideally be an SVG or image */}
-        <div className="h-20 w-20 bg-yellow-400 opacity-0"></div>
+      {/* Cyclist SVG */}
+      <div className="absolute bottom-8 left-36 transform -translate-x-1/2">
+        <svg width="100" height="60" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Bike Wheels */}
+          <circle cx="20" cy="40" r="15" stroke="white" strokeWidth="2" fill="transparent" />
+          <circle cx="80" cy="40" r="15" stroke="white" strokeWidth="2" fill="transparent" />
+          
+          {/* Bike Frame */}
+          <line x1="20" y1="40" x2="50" y2="20" stroke="white" strokeWidth="2" />
+          <line x1="50" y1="20" x2="80" y2="40" stroke="white" strokeWidth="2" />
+          <line x1="20" y1="40" x2="60" y2="40" stroke="white" strokeWidth="2" />
+          <line x1="60" y1="40" x2="80" y2="40" stroke="white" strokeWidth="2" />
+          <line x1="50" y1="20" x2="60" y2="40" stroke="white" strokeWidth="2" />
+          
+          {/* Cyclist */}
+          <circle cx="50" cy="10" r="8" fill="#FFD700" /> {/* Head */}
+          <line x1="50" y1="18" x2="50" y2="30" stroke="#FFD700" strokeWidth="3" /> {/* Body */}
+          <line x1="50" y1="22" x2="60" y2="30" stroke="#FFD700" strokeWidth="2" /> {/* Arm */}
+          <line x1="50" y1="30" x2="40" y2="40" stroke="#FFD700" strokeWidth="2" /> {/* Leg */}
+          <line x1="50" y1="30" x2="60" y2="40" stroke="#FFD700" strokeWidth="2" /> {/* Leg */}
+        </svg>
       </div>
       
       {/* Content */}
       <div className="relative z-10">
-        <h2 className="text-white text-3xl font-bold mb-2">join our Comminety</h2>
+        <h2 className="text-white text-3xl font-bold mb-2">Join our Cycling Community</h2>
         <p className="text-white opacity-80 mb-4 max-w-xs">
-          By joining this collection, you will get acquainted with a variety of cycling sports.
+          By joining this collection, you will get acquainted with a variety of cycling sports and bike routes.
         </p>
         <Button className="bg-white text-bike-blue rounded-full px-4 py-2 font-medium hover:bg-opacity-90 transition-all inline-flex items-center">
-          Wellcome to Group 
+          Welcome to Group 
           <ChevronRight size={16} className="ml-1" />
         </Button>
       </div>

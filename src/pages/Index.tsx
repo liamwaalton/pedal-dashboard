@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Home, MessageSquare, Map, Settings } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -95,10 +94,7 @@ const Index = () => {
             
             {/* Right Sidebar */}
             <div className="lg:col-span-3">
-              <ProfileSection 
-                name="Jerome Bell" 
-                email="jerome69@gmail.com" 
-              />
+              <ProfileSection />
               <MapCard />
             </div>
           </div>
