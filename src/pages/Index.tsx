@@ -1,11 +1,104 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState } from 'react';
+import { Home, MessageSquare, Map, Settings } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import SearchInput from '@/components/SearchInput';
+import SidebarNavItem from '@/components/SidebarNavItem';
+import LocationItem from '@/components/LocationItem';
+import CommunityBanner from '@/components/CommunityBanner';
+import StatisticsCard from '@/components/StatisticsCard';
+import GroupMessageCard from '@/components/GroupMessageCard';
+import MapCard from '@/components/MapCard';
+import ProfileSection from '@/components/ProfileSection';
+import SupportCard from '@/components/SupportCard';
 
 const Index = () => {
+  const [activeNavItem, setActiveNavItem] = useState('home');
+  
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm p-6 md:p-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Sidebar */}
+            <div className="lg:col-span-3">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="flex items-center justify-center h-8 w-8 bg-gray-900 rounded-md text-white">
+                  <span className="text-xs">🚲</span>
+                </div>
+                <h1 className="text-lg font-bold">Echo Bike</h1>
+              </div>
+              
+              <p className="text-sm text-gray-500 mb-4">Your Management dashboard</p>
+              
+              <div className="mb-6">
+                <SearchInput placeholder="Search Your Items ..." />
+              </div>
+              
+              <div className="mb-4">
+                <h2 className="text-sm font-medium text-gray-500 mb-2">Main Items</h2>
+                <nav className="space-y-1">
+                  <SidebarNavItem 
+                    icon={<Home size={20} />} 
+                    label="Home" 
+                    active={activeNavItem === 'home'} 
+                    onClick={() => setActiveNavItem('home')}
+                  />
+                  <SidebarNavItem 
+                    icon={<MessageSquare size={20} />} 
+                    label="Message" 
+                    active={activeNavItem === 'message'} 
+                    onClick={() => setActiveNavItem('message')}
+                  />
+                  <SidebarNavItem 
+                    icon={<Map size={20} />} 
+                    label="Trend Places" 
+                    active={activeNavItem === 'places'} 
+                    onClick={() => setActiveNavItem('places')}
+                  />
+                  <SidebarNavItem 
+                    icon={<Settings size={20} />} 
+                    label="Setting" 
+                    active={activeNavItem === 'settings'} 
+                    onClick={() => setActiveNavItem('settings')}
+                  />
+                </nav>
+              </div>
+              
+              <div className="mb-4">
+                <h2 className="text-sm font-medium text-gray-500 mb-2">Your Favorite Locations</h2>
+                <div>
+                  <LocationItem name="Iran" value="+12" />
+                  <LocationItem name="Brazil" value="+8" />
+                  <LocationItem 
+                    name="Switzerland" 
+                    value="+24" 
+                    active 
+                    color="bg-bike-orange" 
+                  />
+                </div>
+              </div>
+              
+              <SupportCard />
+            </div>
+            
+            {/* Middle Section */}
+            <div className="lg:col-span-6">
+              <CommunityBanner />
+              <StatisticsCard />
+              <GroupMessageCard />
+            </div>
+            
+            {/* Right Sidebar */}
+            <div className="lg:col-span-3">
+              <ProfileSection 
+                name="Jerome Bell" 
+                email="jerome69@gmail.com" 
+              />
+              <MapCard />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
