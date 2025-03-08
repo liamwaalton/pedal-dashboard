@@ -20,6 +20,10 @@ const LanguageSettings = ({ language, setLanguage }: LanguageSettingsProps) => {
           <option value="spanish">Spanish</option>
           <option value="french">French</option>
           <option value="german">German</option>
+          <option value="italian">Italian</option>
+          <option value="portuguese">Portuguese</option>
+          <option value="chinese">Chinese</option>
+          <option value="japanese">Japanese</option>
         </select>
       </div>
     </div>
