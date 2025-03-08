@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { LogIn, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '../App';
 
 interface ProfileSectionProps {
   name?: string;
@@ -10,9 +11,7 @@ interface ProfileSectionProps {
 }
 
 const ProfileSection = ({ name, email }: ProfileSectionProps) => {
-  // This would normally come from authentication context
-  // For demo purposes, we'll use local state that can be toggled
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
   const { toast } = useToast();
 
   const handleLoginWithStrava = () => {

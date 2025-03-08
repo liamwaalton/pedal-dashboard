@@ -1,11 +1,13 @@
 
 import React from 'react';
-import { Settings as SettingsIcon, User, Bell, Lock, Globe, LogOut, Moon, Sun, Smartphone } from 'lucide-react';
+import { Settings as SettingsIcon, User, Bell, Lock, Globe, LogOut, Moon, Sun, Smartphone, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import SidebarNavItem from '@/components/SidebarNavItem';
 import SearchInput from '@/components/SearchInput';
 import SupportCard from '@/components/SupportCard';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../App';
 
 const settingsSections = [
   { id: 'account', icon: <User size={20} />, label: 'Account', active: true },
@@ -19,6 +21,13 @@ const SettingsPage = () => {
   const [pushNotifications, setPushNotifications] = React.useState(true);
   const [emailNotifications, setEmailNotifications] = React.useState(true);
   const [language, setLanguage] = React.useState('english');
+  const navigate = useNavigate();
+  const { setIsLoggedIn } = useAuth();
+  
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    navigate('/');
+  };
   
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
