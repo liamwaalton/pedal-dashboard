@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Home, MessageSquare, Map, Settings } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -6,13 +7,20 @@ import SidebarNavItem from '@/components/SidebarNavItem';
 import LocationItem from '@/components/LocationItem';
 import CommunityBanner from '@/components/CommunityBanner';
 import StatisticsCard from '@/components/StatisticsCard';
-import GroupMessageCard from '@/components/GroupMessageCard';
+//import GroupMessageCard from '@/components/GroupMessageCard';
 import MapCard from '@/components/MapCard';
 import ProfileSection from '@/components/ProfileSection';
 import SupportCard from '@/components/SupportCard';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
   const [activeNavItem, setActiveNavItem] = useState('home');
+  const navigate = useNavigate();
+  
+  const handleNavigation = (path: string, navItem: string) => {
+    setActiveNavItem(navItem);
+    navigate(path);
+  };
   
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -25,7 +33,7 @@ const Index = () => {
                 <div className="flex items-center justify-center h-8 w-8 bg-gray-900 rounded-md text-white">
                   <span className="text-xs">🚲</span>
                 </div>
-                <h1 className="text-lg font-bold">Echo Bike</h1>
+                <h1 className="text-lg font-bold">Pedal Dashboard</h1>
               </div>
               
               <p className="text-sm text-gray-500 mb-4">Your Management dashboard</p>
@@ -41,25 +49,25 @@ const Index = () => {
                     icon={<Home size={20} />} 
                     label="Home" 
                     active={activeNavItem === 'home'} 
-                    onClick={() => setActiveNavItem('home')}
+                    onClick={() => handleNavigation('/', 'home')}
                   />
                   <SidebarNavItem 
                     icon={<MessageSquare size={20} />} 
                     label="Message" 
                     active={activeNavItem === 'message'} 
-                    onClick={() => setActiveNavItem('message')}
+                    onClick={() => handleNavigation('/messages', 'message')}
                   />
                   <SidebarNavItem 
                     icon={<Map size={20} />} 
                     label="Trend Places" 
                     active={activeNavItem === 'places'} 
-                    onClick={() => setActiveNavItem('places')}
+                    onClick={() => handleNavigation('/trend-places', 'places')}
                   />
                   <SidebarNavItem 
                     icon={<Settings size={20} />} 
                     label="Setting" 
                     active={activeNavItem === 'settings'} 
-                    onClick={() => setActiveNavItem('settings')}
+                    onClick={() => handleNavigation('/settings', 'settings')}
                   />
                 </nav>
               </div>
@@ -85,10 +93,11 @@ const Index = () => {
             <div className="lg:col-span-6">
               <CommunityBanner />
               
-              {/* Two-column layout for Statistics and Group Message */}
+              {/* Two-column layout with StatisticsCard spanning full width */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <StatisticsCard />
-                <GroupMessageCard />
+                <div className="md:col-span-2">
+                  <StatisticsCard />
+                </div>
               </div>
             </div>
             
