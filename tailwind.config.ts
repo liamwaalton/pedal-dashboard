@@ -1,7 +1,7 @@
-
 import type { Config } from "tailwindcss";
+import { fontFamily } from "tailwindcss/defaultTheme";
 
-export default {
+const config = {
 	darkMode: ["class"],
 	content: [
 		"./pages/**/*.{ts,tsx}",
@@ -53,6 +53,12 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				bike: {
+					orange: 'hsl(var(--bike-orange))',
+					green: 'hsl(var(--bike-green))',
+					blue: 'hsl(var(--bike-blue))',
+					purple: 'hsl(var(--bike-purple))',
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -63,18 +69,14 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				bike: {
-					blue: '#3E82FF',
-					orange: '#FF6934', 
-					lightBlue: '#70AAFF',
-					purple: '#6B4BFF',
-					green: '#8FE95A'
-				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			fontFamily: {
+				sans: ["var(--font-sans)", ...fontFamily.sans],
 			},
 			keyframes: {
 				'accordion-down': {
@@ -116,5 +118,7 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 } satisfies Config;
+
+export default config;

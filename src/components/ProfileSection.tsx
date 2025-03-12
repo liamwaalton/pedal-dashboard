@@ -107,7 +107,7 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
       </div>
       
       <div className="flex space-x-2 mt-auto">
-        <Button className="bike-button-orange flex-1">Go To Shop</Button>
+        <Button className="bike-button-orange flex-1">Load Data</Button>
         <Button 
           variant="outline" 
           className="flex-none" 

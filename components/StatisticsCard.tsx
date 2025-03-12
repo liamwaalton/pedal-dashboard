@@ -1,33 +1,47 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import StatisticsChart from './StatisticsChart';
+import ActivityStats from './ActivityStats';
+import { useActivity } from '@/lib/activity-context';
+import { toast } from '@/components/ui/use-toast';
 
 interface StatisticsCardProps {
-  distance?: number;
-  duration?: number;
   timeframe?: string;
-  loading?: boolean;
 }
 
 const StatisticsCard: React.FC<StatisticsCardProps> = ({
-  distance = 0,
-  duration = 0,
-  timeframe = 'Today',
-  loading = false
+  timeframe = 'Last 30 Days'
 }) => {
+  const { stats, isLoading, error, loadActivities } = useActivity();
+  const [showActivityStats, setShowActivityStats] = useState(false);
+
   // Format distance to 1 decimal place when available
-  const displayDistance = loading ? "Loading..." : `${distance.toFixed(1)} KM`;
+  const displayDistance = isLoading || !stats ? "Loading..." : `${stats.totalDistanceKm} KM`;
   
-  // Format duration from seconds to MM:SS
-  const formatDuration = (seconds: number): string => {
-    if (loading) return "Loading...";
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  // Format duration from hours
+  const displayDuration = isLoading || !stats ? "Loading..." : `${stats.totalMovingTimeHours} Hours`;
+
+  const handleLoadData = async () => {
+    try {
+      await loadActivities();
+      setShowActivityStats(true);
+      toast({
+        title: "Data loaded successfully",
+        description: "Your Strava activity data has been loaded.",
+      });
+    } catch (err) {
+      toast({
+        title: "Error loading data",
+        description: "There was a problem loading your Strava data.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
-    <div className="bike-card h-[330px] flex flex-col animate-fade-in">
+    <div className="bike-card h-auto flex flex-col">
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-sm text-gray-500">Statistics</h2>
         <div className="relative">
@@ -38,7 +52,10 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
       </div>
       
       <h3 className="text-xl font-semibold text-gray-800">Excellent!</h3>
-      <p className="text-sm text-gray-500 mb-2">You had the most records {timeframe.toLowerCase()}</p>
+      <p className="text-sm text-gray-500 mb-2">Your cycling statistics from Strava</p>
+      
+      {/* Show ActivityStats component when data is loaded */}
+      {showActivityStats && <ActivityStats />}
       
       <div className="flex-grow">
         <StatisticsChart />
@@ -69,12 +86,23 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
           </div>
           <div>
             <p className="text-xs text-gray-500">Time</p>
-            <p className="font-semibold text-bike-blue">{formatDuration(duration)}</p>
+            <p className="font-semibold text-bike-blue">{displayDuration}</p>
           </div>
         </div>
+      </div>
+      
+      {/* Load Data Button */}
+      <div className="mt-4">
+        <Button 
+          onClick={handleLoadData} 
+          className="w-full bg-bike-blue hover:bg-bike-blue/90"
+          disabled={isLoading}
+        >
+          {isLoading ? "Loading..." : "Load Data"}
+        </Button>
       </div>
     </div>
   );
 };
 
-export default StatisticsCard;
+export default StatisticsCard; 
