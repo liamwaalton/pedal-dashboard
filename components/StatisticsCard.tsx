@@ -92,7 +92,7 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
       </div>
       
       {/* Load Data Button */}
-      <div className="mt-4">
+      {/* <div className="mt-4">
         <Button 
           onClick={handleLoadData} 
           className="w-full bg-bike-blue hover:bg-bike-blue/90"
@@ -100,7 +100,7 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
         >
           {isLoading ? "Loading..." : "Load Data"}
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 };
