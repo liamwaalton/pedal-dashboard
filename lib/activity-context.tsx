@@ -13,6 +13,7 @@ export type ActivityStats = {
   averageSpeed: string | number;
   recentActivities: any[];
   activityTypes: Record<string, number>;
+  locations: { name: string, count: number }[];
 };
 
 type ActivityContextType = {
@@ -33,6 +34,7 @@ const defaultStats: ActivityStats = {
   averageSpeed: '0',
   recentActivities: [],
   activityTypes: {},
+  locations: [],
 };
 
 const ActivityContext = createContext<ActivityContextType>({
@@ -52,6 +54,9 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   const loadActivities = async () => {
+    // Only prevent loading if already in progress
+    if (isLoading) return;
+    
     setIsLoading(true);
     setError(null);
     

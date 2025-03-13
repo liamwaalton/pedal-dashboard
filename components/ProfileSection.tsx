@@ -14,7 +14,7 @@ interface ProfileSectionProps {
 
 const ProfileSection = ({ name, email }: ProfileSectionProps) => {
   const { isLoggedIn, athlete, login, logout, isLoading: authLoading } = useAuth();
-  const { loadActivities, isLoading: dataLoading } = useActivity();
+  const { loadActivities, isLoading: dataLoading, stats } = useActivity();
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
   
@@ -129,6 +129,9 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
   const fullName = athlete ? `${athlete.firstname} ${athlete.lastname}` : name || "Jerome Bell";
   const profileImage = athlete?.profile || null;
 
+  // Determine if data is already loaded
+  const dataAlreadyLoaded = stats !== null;
+
   return (
     <div className="bike-card mb-6 h-[400px] flex flex-col">
       <h2 className="text-sm text-gray-500 mb-4">Profile Info</h2>
@@ -173,7 +176,7 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
           onClick={loadActivities}
           disabled={dataLoading}
         >
-          {dataLoading ? "Loading..." : "Load Data"}
+          {dataLoading ? "Loading..." : dataAlreadyLoaded ? "Refresh Data" : "Load Data"}
         </Button>
         <Button 
           variant="outline" 

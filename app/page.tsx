@@ -12,10 +12,12 @@ import MapCard from '@/components/MapCard';
 import ProfileSection from '@/components/ProfileSection';
 import SupportCard from '@/components/SupportCard';
 import { useRouter } from 'next/navigation';
+import { useActivity } from '@/lib/activity-context';
 
 export default function HomePage() {
   const [activeNavItem, setActiveNavItem] = useState('home');
   const router = useRouter();
+  const { stats, loadActivities, isLoading } = useActivity();
   
   const handleNavigation = (path: string, navItem: string) => {
     setActiveNavItem(navItem);
@@ -75,14 +77,21 @@ export default function HomePage() {
               <div className="mb-4">
                 <h2 className="text-sm font-medium text-gray-500 mb-2">Your Favorite Locations</h2>
                 <div>
-                  <LocationItem name="Iran" value="+12" />
-                  <LocationItem name="Brazil" value="+8" />
-                  <LocationItem 
-                    name="Switzerland" 
-                    value="+24" 
-                    active 
-                    color="bg-bike-orange" 
-                  />
+                  {stats && stats.locations && stats.locations.length > 0 ? (
+                    stats.locations.map((location, index) => (
+                      <LocationItem 
+                        key={location.name}
+                        name={location.name} 
+                        value={`+${location.count}`} 
+                        active={index === 0}
+                        color={index === 0 ? "bg-bike-orange" : undefined}
+                      />
+                    ))
+                  ) : isLoading ? (
+                    <div className="text-sm text-gray-400">Loading locations...</div>
+                  ) : (
+                    <div className="text-sm text-gray-400">No locations found. Click "Load Data" to fetch your ride locations.</div>
+                  )}
                 </div>
               </div>
               
