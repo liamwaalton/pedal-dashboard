@@ -7,7 +7,7 @@ const MapCard = () => {
   return (
     <div className="bike-card relative h-[400px] flex flex-col">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm text-gray-500">Live Location</h2>
+      
         <div className="text-bike-blue">
           <Navigation size={16} />
         </div>
@@ -69,25 +69,14 @@ const MapCard = () => {
       
       <div className="flex justify-between items-center mt-auto">
         <div>
-          <p className="text-xs text-gray-500">Your destination</p>
+      
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-bike-orange rounded-full"></div>
-            <span className="text-sm font-medium">Echo Park</span>
+            
           </div>
         </div>
         
-        <div className="text-right">
-          <div className="bg-bike-purple w-12 h-12 rounded-full flex items-center justify-center text-white">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2" />
-              <path d="M12 6v6l4 2" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <div className="mt-1">
-            <p className="text-xl font-bold">00:48:24</p>
-            <p className="text-xs text-gray-500">Leased time</p>
-          </div>
-        </div>
+        
       </div>
     </div>
   );

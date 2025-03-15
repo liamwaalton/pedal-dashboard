@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import StatisticsChart from './StatisticsChart';
 import ActivityStats from './ActivityStats';
+import ActivityTrendsChart from './ActivityTrendsChart';
 import { useActivity } from '@/lib/activity-context';
-import { toast } from '@/components/ui/use-toast';
 
 interface StatisticsCardProps {
   timeframe?: string;
@@ -23,22 +22,17 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
   // Format duration from hours
   const displayDuration = isLoading || !stats ? "Loading..." : `${stats.totalMovingTimeHours} Hours`;
 
-  const handleLoadData = async () => {
-    try {
-      await loadActivities();
-      setShowActivityStats(true);
-      toast({
-        title: "Data loaded successfully",
-        description: "Your Strava activity data has been loaded.",
-      });
-    } catch (err) {
-      toast({
-        title: "Error loading data",
-        description: "There was a problem loading your Strava data.",
-        variant: "destructive",
-      });
+  // Load data on component mount
+  useEffect(() => {
+    // Only attempt to load if not already loading and not already loaded
+    if (!isLoading && !showActivityStats) {
+      loadActivities()
+        .then(() => setShowActivityStats(true))
+        .catch((err) => {
+          console.error('Error loading activities:', err);
+        });
     }
-  };
+  }, [isLoading, loadActivities, showActivityStats]);
 
   return (
     <div className="bike-card h-auto flex flex-col">
@@ -54,11 +48,16 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
       <h3 className="text-xl font-semibold text-gray-800">Excellent!</h3>
       <p className="text-sm text-gray-500 mb-2">Your cycling statistics from Strava</p>
       
-      {/* Show ActivityStats component when data is loaded */}
-      {showActivityStats && <ActivityStats />}
+      {/* Show ActivityStats component */}
+      <ActivityStats />
       
-      <div className="flex-grow">
-        <StatisticsChart />
+      {/* Activity Trends Section */}
+      <div className="mt-4 mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium text-gray-700">Activity Trends</h3>
+          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Last 30 Days</span>
+        </div>
+        <ActivityTrendsChart />
       </div>
       
       <div className="flex justify-between mt-auto pt-2">
@@ -90,17 +89,6 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
           </div>
         </div>
       </div>
-      
-      {/* Load Data Button */}
-      {/* <div className="mt-4">
-        <Button 
-          onClick={handleLoadData} 
-          className="w-full bg-bike-blue hover:bg-bike-blue/90"
-          disabled={isLoading}
-        >
-          {isLoading ? "Loading..." : "Load Data"}
-        </Button>
-      </div> */}
     </div>
   );
 };

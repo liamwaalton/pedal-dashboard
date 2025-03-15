@@ -35,7 +35,7 @@ export default function HomePage() {
                 <div className="flex items-center justify-center h-8 w-8 bg-gray-900 rounded-md text-white">
                   <span className="text-xs">🚲</span>
                 </div>
-                <h1 className="text-lg font-bold">Pedal Dashboard</h1>
+                <h1 className="text-lg font-bold">Pedal Pulse</h1>
               </div>
               
               <p className="text-sm text-gray-500 mb-4">Your Management dashboard</p>
