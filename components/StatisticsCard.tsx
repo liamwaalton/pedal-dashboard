@@ -4,44 +4,95 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import ActivityStats from './ActivityStats';
 import ActivityTrendsChart from './ActivityTrendsChart';
-import { useActivity } from '@/lib/activity-context';
+import { useActivity, TimePeriod } from '@/lib/activity-context';
+import { useAuth } from '@/lib/auth-context';
+import { Separator } from '@/src/components/ui/separator';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/src/components/ui/select';
+import { Calendar } from 'lucide-react';
 
 interface StatisticsCardProps {
   timeframe?: string;
 }
 
-const StatisticsCard: React.FC<StatisticsCardProps> = ({
-  timeframe = 'Last 30 Days'
-}) => {
-  const { stats, isLoading, error, loadActivities } = useActivity();
+const StatisticsCard: React.FC<StatisticsCardProps> = () => {
+  const { stats, isLoading, error, loadActivities, timePeriod, setTimePeriod } = useActivity();
+  const { isLoggedIn } = useAuth();
   const [showActivityStats, setShowActivityStats] = useState(false);
 
   // Format distance to 1 decimal place when available
-  const displayDistance = isLoading || !stats ? "Loading..." : `${stats.totalDistanceKm} KM`;
+  const displayDistance = !isLoggedIn ? "Log in to view" : 
+                        isLoading || !stats ? "Loading..." : 
+                        `${stats.totalDistanceKm} KM`;
   
   // Format duration from hours
-  const displayDuration = isLoading || !stats ? "Loading..." : `${stats.totalMovingTimeHours} Hours`;
+  const displayDuration = !isLoggedIn ? "Log in to view" : 
+                        isLoading || !stats ? "Loading..." : 
+                        `${stats.totalMovingTimeHours} Hours`;
 
-  // Load data on component mount
+  // Load data on component mount - only if authenticated
   useEffect(() => {
-    // Only attempt to load if not already loading and not already loaded
-    if (!isLoading && !showActivityStats) {
+    // Only attempt to load if user is logged in, not already loading and not already loaded
+    if (isLoggedIn && !isLoading && !showActivityStats) {
       loadActivities()
         .then(() => setShowActivityStats(true))
         .catch((err) => {
           console.error('Error loading activities:', err);
         });
     }
-  }, [isLoading, loadActivities, showActivityStats]);
+  }, [isLoggedIn, isLoading, loadActivities, showActivityStats]);
+
+  // Handle time period change
+  const handleTimePeriodChange = (value: string) => {
+    const newPeriod = value as TimePeriod;
+    setTimePeriod(newPeriod);
+    if (isLoggedIn) {
+      loadActivities(newPeriod);
+    }
+  };
+
+  // Get display text for time period
+  const getTimePeriodDisplay = (period: TimePeriod): string => {
+    switch (period) {
+      case 'today':
+        return 'Today';
+      case 'week':
+        return 'This Week';
+      case 'month':
+        return 'This Month';
+      case 'year':
+        return 'This Year';
+      case '30days':
+      default:
+        return 'Last 30 Days';
+    }
+  };
 
   return (
     <div className="bike-card h-auto flex flex-col">
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-sm text-gray-500">Statistics</h2>
         <div className="relative">
-          <Button variant="outline" className="text-xs h-8 rounded-full px-3">
-            {timeframe}
-          </Button>
+          <Select value={timePeriod} onValueChange={handleTimePeriodChange}>
+            <SelectTrigger className="text-xs h-8 rounded-full px-3 w-auto min-w-[140px]">
+              <Calendar className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
+              <SelectValue placeholder="Select period">
+                {getTimePeriodDisplay(timePeriod)}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">Today</SelectItem>
+              <SelectItem value="week">This Week</SelectItem>
+              <SelectItem value="month">This Month</SelectItem>
+              <SelectItem value="30days">Last 30 Days</SelectItem>
+              <SelectItem value="year">This Year</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
       
@@ -52,10 +103,12 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
       <ActivityStats />
       
       {/* Activity Trends Section */}
-      <div className="mt-4 mb-6">
+      <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-medium text-gray-700">Activity Trends</h3>
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Last 30 Days</span>
+          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+            {getTimePeriodDisplay(timePeriod)}
+          </span>
         </div>
         <ActivityTrendsChart />
       </div>

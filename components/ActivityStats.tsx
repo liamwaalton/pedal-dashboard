@@ -2,17 +2,56 @@
 
 import React from 'react';
 import { useActivity } from '@/lib/activity-context';
-import { Clock, Map, TrendingUp, Activity } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
+import { Clock, Map, TrendingUp, Activity, LogIn } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 const ActivityStats = () => {
   const { stats, isLoading, error } = useActivity();
+  const { isLoggedIn, login } = useAuth();
+
+  if (!isLoggedIn) {
+    return (
+      <div className="bike-card p-6 mb-6">
+        <div className="flex flex-col items-center text-center space-y-4">
+          <div className="flex justify-center">
+            <svg viewBox="0 0 40 40" width="60" height="60" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="20" cy="20" r="18" fill="#FC4C02" />
+              <path d="M23.5,19.3l-3-6.6l-3,6.6h6.1M25.7,24.4l-3-6.6h-7.5l-3,6.6h4.2l1.7-3.8h6.1l1.7,3.8h4.2" fill="white" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">Welcome to Your Cycling Dashboard</h3>
+          <p className="text-gray-600">Connect with Strava to see your cycling statistics and track your progress</p>
+          <Button 
+            onClick={login}
+            className="bg-[#FC4C02] hover:bg-[#e64500] text-white rounded-full gap-2"
+          >
+            <LogIn size={18} />
+            Connect with Strava
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
-      <div className="bg-red-50 p-4 rounded-lg text-red-600 mb-6">
-        <h3 className="font-semibold mb-2">Error Loading Data</h3>
-        <p>{error}</p>
+      <div className="bike-card p-6 mb-6">
+        <div className="flex flex-col items-center text-center space-y-4">
+          <div className="rounded-full bg-red-100 p-3 mb-2">
+            <Activity className="h-6 w-6 text-red-600" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">Unable to Load Statistics</h3>
+          <p className="text-gray-600">{error}</p>
+          <Button 
+            onClick={() => window.location.reload()}
+            variant="outline"
+            className="mt-4"
+          >
+            Try Again
+          </Button>
+        </div>
       </div>
     );
   }

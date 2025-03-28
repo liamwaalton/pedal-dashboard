@@ -1,13 +1,37 @@
 'use client';
 
 import React from 'react';
-import { Map, Navigation } from 'lucide-react';
+import { Map, Navigation, LogIn } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
+import { Button } from '@/components/ui/button';
 
 const MapCard = () => {
+  const { isLoggedIn, login } = useAuth();
+
+  if (!isLoggedIn) {
+    return (
+      <div className="bike-card p-6 h-[400px] flex flex-col items-center justify-center text-center">
+        <div className="flex justify-center mb-4">
+          <div className="bg-gray-100 p-4 rounded-full">
+            <Map className="h-8 w-8 text-bike-blue" />
+          </div>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">View Your Ride Map</h3>
+        <p className="text-gray-600 mb-4">Connect with Strava to visualize your rides on the map</p>
+        <Button 
+          onClick={login}
+          className="bg-[#FC4C02] hover:bg-[#e64500] text-white rounded-full gap-2"
+        >
+          <LogIn size={18} />
+          Connect with Strava
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="bike-card relative h-[400px] flex flex-col">
       <div className="mb-4 flex items-center justify-between">
-      
         <div className="text-bike-blue">
           <Navigation size={16} />
         </div>
@@ -69,14 +93,10 @@ const MapCard = () => {
       
       <div className="flex justify-between items-center mt-auto">
         <div>
-      
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-bike-orange rounded-full"></div>
-            
           </div>
         </div>
-        
-        
       </div>
     </div>
   );

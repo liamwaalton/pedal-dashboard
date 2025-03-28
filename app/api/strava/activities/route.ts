@@ -8,9 +8,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
+  // Get the time period from the query parameters
+  const searchParams = request.nextUrl.searchParams;
+  const period = searchParams.get('period') || '30days';
+
   try {
-    // Fetch activities from Strava API
-    const response = await fetch('https://www.strava.com/api/v3/athlete/activities?per_page=30', {
+    // Fetch activities from Strava API - get more activities for longer time periods
+    const perPage = period === 'year' ? 200 : period === 'month' ? 100 : 50;
+    const response = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`
       }
@@ -20,15 +25,68 @@ export async function GET(request: NextRequest) {
       throw new Error(`Strava API error: ${response.statusText}`);
     }
 
-    const activities = await response.json();
+    const allActivities = await response.json();
+    
+    // Filter activities based on the time period
+    const filteredActivities = filterActivitiesByPeriod(allActivities, period);
     
     // Calculate total stats
-    const stats = calculateStats(activities);
+    const stats = calculateStats(filteredActivities);
     
-    return NextResponse.json({ activities, stats });
+    return NextResponse.json({ activities: filteredActivities, stats });
   } catch (error) {
     console.error('Error fetching Strava activities:', error);
     return NextResponse.json({ error: 'Failed to fetch activities' }, { status: 500 });
+  }
+}
+
+// Helper function to filter activities by time period
+function filterActivitiesByPeriod(activities: any[], period: string) {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  switch (period) {
+    case 'today':
+      // Activities from today
+      return activities.filter(activity => {
+        const activityDate = new Date(activity.start_date);
+        return activityDate >= today;
+      });
+      
+    case 'week':
+      // Activities from the last 7 days
+      const weekAgo = new Date(now);
+      weekAgo.setDate(now.getDate() - 7);
+      return activities.filter(activity => {
+        const activityDate = new Date(activity.start_date);
+        return activityDate >= weekAgo;
+      });
+      
+    case 'month':
+      // Activities from the current month
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      return activities.filter(activity => {
+        const activityDate = new Date(activity.start_date);
+        return activityDate >= startOfMonth;
+      });
+      
+    case 'year':
+      // Activities from the current year
+      const startOfYear = new Date(now.getFullYear(), 0, 1);
+      return activities.filter(activity => {
+        const activityDate = new Date(activity.start_date);
+        return activityDate >= startOfYear;
+      });
+      
+    case '30days':
+    default:
+      // Activities from the last 30 days (default)
+      const thirtyDaysAgo = new Date(now);
+      thirtyDaysAgo.setDate(now.getDate() - 30);
+      return activities.filter(activity => {
+        const activityDate = new Date(activity.start_date);
+        return activityDate >= thirtyDaysAgo;
+      });
   }
 }
 

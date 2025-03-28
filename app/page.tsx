@@ -11,13 +11,16 @@ import StatisticsCard from '@/components/StatisticsCard';
 import MapCard from '@/components/MapCard';
 import ProfileSection from '@/components/ProfileSection';
 import SupportCard from '@/components/SupportCard';
+import GoalSidebarCard from '@/components/GoalSidebarCard';
 import { useRouter } from 'next/navigation';
 import { useActivity } from '@/lib/activity-context';
+import { useAuth } from '@/lib/auth-context';
 
 export default function HomePage() {
   const [activeNavItem, setActiveNavItem] = useState('home');
   const router = useRouter();
   const { stats, loadActivities, isLoading } = useActivity();
+  const { isLoggedIn } = useAuth();
   
   const handleNavigation = (path: string, navItem: string) => {
     setActiveNavItem(navItem);
@@ -77,7 +80,9 @@ export default function HomePage() {
               <div className="mb-4">
                 <h2 className="text-sm font-medium text-gray-500 mb-2">Your Favorite Locations</h2>
                 <div>
-                  {stats && stats.locations && stats.locations.length > 0 ? (
+                  {!isLoggedIn ? (
+                    <div className="text-sm text-gray-400">Connect with Strava to see your favorite locations</div>
+                  ) : stats && stats.locations && stats.locations.length > 0 ? (
                     stats.locations.map((location, index) => (
                       <LocationItem 
                         key={location.name}
@@ -95,7 +100,7 @@ export default function HomePage() {
                 </div>
               </div>
               
-              <SupportCard />
+              <GoalSidebarCard />
             </div>
             
             {/* Middle Section */}
