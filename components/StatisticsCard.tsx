@@ -14,7 +14,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/src/components/ui/select';
-import { Calendar } from 'lucide-react';
+import { Calendar, BarChart2 } from 'lucide-react';
 
 interface StatisticsCardProps {
   timeframe?: string;
@@ -74,12 +74,20 @@ const StatisticsCard: React.FC<StatisticsCardProps> = () => {
   };
 
   return (
-    <div className="bike-card h-auto flex flex-col">
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-sm text-gray-500">Statistics</h2>
+    <div className="bike-card-gradient-blue p-6 flex flex-col">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="bg-white p-1.5 rounded-lg shadow-sm">
+            <BarChart2 className="h-5 w-5 text-bike-blue" />
+          </div>
+          <div>
+            <h2 className="font-semibold text-gray-900">Activity Statistics</h2>
+            <p className="text-xs text-gray-500">Your cycling progress</p>
+          </div>
+        </div>
         <div className="relative">
           <Select value={timePeriod} onValueChange={handleTimePeriodChange}>
-            <SelectTrigger className="text-xs h-8 rounded-full px-3 w-auto min-w-[140px]">
+            <SelectTrigger className="text-xs h-9 rounded-lg px-3 w-auto min-w-[140px] border border-gray-200 shadow-sm">
               <Calendar className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
               <SelectValue placeholder="Select period">
                 {getTimePeriodDisplay(timePeriod)}
@@ -96,49 +104,61 @@ const StatisticsCard: React.FC<StatisticsCardProps> = () => {
         </div>
       </div>
       
-      <h3 className="text-xl font-semibold text-gray-800">Excellent!</h3>
-      <p className="text-sm text-gray-500 mb-2">Your cycling statistics from Strava</p>
-      
       {/* Show ActivityStats component */}
       <ActivityStats />
       
       {/* Activity Trends Section */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium text-gray-700">Activity Trends</h3>
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-            {getTimePeriodDisplay(timePeriod)}
-          </span>
+      <div className="mt-6 bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-medium text-gray-800">Riding Trends</h3>
+          <div className="flex items-center">
+            <div className="flex items-center mr-3">
+              <div className="w-3 h-3 rounded-full bg-bike-orange mr-1.5"></div>
+              <span className="text-xs text-gray-500">Distance</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full bg-bike-blue mr-1.5"></div>
+              <span className="text-xs text-gray-500">Time</span>
+            </div>
+          </div>
         </div>
         <ActivityTrendsChart />
       </div>
       
-      <div className="flex justify-between mt-auto pt-2">
-        <div className="flex items-center gap-2 bg-red-50 px-3 py-2 rounded-full">
-          <div className="bg-bike-orange rounded-full p-1">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 3v4a1 1 0 0 0 1 1h4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M12 17v-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M9.5 14.5L12 17l2.5-2.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">Distance</p>
-            <p className="font-semibold text-bike-orange">{displayDistance}</p>
+      <div className="grid grid-cols-2 gap-4 mt-6">
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Total Distance</p>
+              <p className="font-semibold text-gray-900 text-lg">
+                {displayDistance}
+              </p>
+            </div>
+            <div className="bg-orange-50 p-2 rounded-lg">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 3v4a1 1 0 0 0 1 1h4" stroke="#FF5A1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z" stroke="#FF5A1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 17v-6" stroke="#FF5A1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M9.5 14.5L12 17l2.5-2.5" stroke="#FF5A1F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
           </div>
         </div>
         
-        <div className="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-full">
-          <div className="bg-bike-blue rounded-full p-1">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2" />
-              <path d="M12 6v6l4 2" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">Time</p>
-            <p className="font-semibold text-bike-blue">{displayDuration}</p>
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Total Time</p>
+              <p className="font-semibold text-gray-900 text-lg">
+                {displayDuration}
+              </p>
+            </div>
+            <div className="bg-blue-50 p-2 rounded-lg">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="#3B82F6" strokeWidth="2" />
+                <path d="M12 6v6l4 2" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
           </div>
         </div>
       </div>

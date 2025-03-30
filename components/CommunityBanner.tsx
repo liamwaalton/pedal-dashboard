@@ -1,86 +1,100 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-interface Cloud {
-  top: string;
-  left: string;
-  size: string;
-  delay: string;
-}
-
-// Generate some random clouds
-const clouds: Cloud[] = [
-  { top: '20%', left: '15%', size: 'w-16 h-8', delay: '0s' },
-  { top: '10%', left: '60%', size: 'w-20 h-10', delay: '1s' },
-  { top: '35%', left: '75%', size: 'w-14 h-7', delay: '2s' },
-  { top: '15%', left: '35%', size: 'w-12 h-6', delay: '3s' },
-];
+import { motion } from 'framer-motion';
 
 const CommunityBanner = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
   return (
-    <div className="relative overflow-hidden bg-bike-blue rounded-3xl h-80 flex flex-col justify-end p-6 mb-6">
-      {/* Clouds */}
-      {clouds.map((cloud, index) => (
-        <div
-          key={index}
-          className={`absolute bg-white opacity-80 rounded-full ${cloud.size}`}
-          style={{
-            top: cloud.top,
-            left: cloud.left,
-            animationDelay: cloud.delay,
-          }}
-        />
-      ))}
-      
-      {/* Green hill */}
-      <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-bike-green rounded-t-[80px] rounded-b-3xl opacity-80" />
-      
-      {/* Tree */}
-      <div className="absolute bottom-20 right-20 w-16 h-32">
-        <div className="w-16 h-16 bg-bike-green rounded-full absolute -top-6" />
-        <div className="w-12 h-12 bg-bike-green rounded-full absolute top-2 -left-4" />
-        <div className="w-14 h-14 bg-yellow-400 rounded-full absolute top-0 left-4" />
-        <div className="w-4 h-16 bg-yellow-700 absolute bottom-0 left-6" />
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="mb-6"
+    >
+      <div className="overflow-hidden rounded-xl shadow-lg relative">
+        {/* Main content area with gradient background */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-6 sm:p-8 md:p-10">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-center">
+              
+              {/* Text content - left side */}
+              <div className="md:w-2/3 mb-8 md:mb-0 md:pr-8">
+                <h2 className="text-white text-3xl sm:text-4xl font-bold mb-4">
+                  Join our Cycling Community
+                </h2>
+                <p className="text-white/90 text-lg mb-6 max-w-xl">
+                  By joining this collection, you will get acquainted with a variety of cycling sports and bike routes.
+                </p>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button className="bg-white border-0 text-blue-600 hover:bg-blue-50 hover:text-blue-700 font-semibold px-6 py-3 rounded-lg text-base shadow-md">
+                    Welcome to Group
+                    <ChevronRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </motion.div>
+              </div>
+              
+              {/* Illustration - right side */}
+              <div className="md:w-1/3 flex justify-center">
+                <div className="relative w-full max-w-xs">
+                  {/* Circle background with bicycle SVG */}
+                  <div className="aspect-square rounded-full bg-white/20 flex items-center justify-center relative overflow-hidden">
+                    <img 
+                      src="/images/bicycle-illustration.svg" 
+                      alt="Cycling illustration" 
+                      className="w-full h-auto object-contain" 
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const fallbackSvg = document.getElementById('fallback-svg');
+                        if (fallbackSvg) {
+                          fallbackSvg.style.display = 'block';
+                        }
+                      }}
+                    />
+                    
+                    {/* Fallback SVG if image fails to load */}
+                    <svg 
+                      id="fallback-svg"
+                      style={{ display: 'none' }}
+                      width="150" 
+                      height="150" 
+                      viewBox="0 0 150 150" 
+                      fill="none" 
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-3/4 h-auto"
+                    >
+                      <circle cx="75" cy="75" r="73" stroke="white" strokeWidth="3" fillOpacity="0.1" fill="white" />
+                      <circle cx="40" cy="106" r="15" stroke="white" strokeWidth="4" fill="white" fillOpacity="0.2" />
+                      <circle cx="110" cy="106" r="15" stroke="white" strokeWidth="4" fill="white" fillOpacity="0.2" />
+                      <path d="M40,106 L75,56 L110,106" stroke="white" strokeWidth="4" fill="none" />
+                      <path d="M75,56 L75,96" stroke="white" strokeWidth="4" fill="none" />
+                      <path d="M40,106 L75,96" stroke="white" strokeWidth="4" fill="none" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-40 h-40 bg-blue-400 rounded-full opacity-30 -mr-10 -mt-10 hidden md:block" />
+        <div className="absolute bottom-0 left-0 w-60 h-60 bg-blue-400 rounded-full opacity-20 -ml-20 -mb-20 hidden md:block" />
+        
+        {/* Bottom accent strip */}
+        <div className="h-2 bg-gradient-to-r from-blue-400 to-indigo-500" />
       </div>
-      
-      {/* Cyclist SVG */}
-      <div className="absolute bottom-8 left-36 transform -translate-x-1/2">
-        <svg width="100" height="60" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* Bike Wheels */}
-          <circle cx="20" cy="40" r="15" stroke="white" strokeWidth="2" fill="transparent" />
-          <circle cx="80" cy="40" r="15" stroke="white" strokeWidth="2" fill="transparent" />
-          
-          {/* Bike Frame */}
-          <line x1="20" y1="40" x2="50" y2="20" stroke="white" strokeWidth="2" />
-          <line x1="50" y1="20" x2="80" y2="40" stroke="white" strokeWidth="2" />
-          <line x1="20" y1="40" x2="60" y2="40" stroke="white" strokeWidth="2" />
-          <line x1="60" y1="40" x2="80" y2="40" stroke="white" strokeWidth="2" />
-          <line x1="50" y1="20" x2="60" y2="40" stroke="white" strokeWidth="2" />
-          
-          {/* Cyclist */}
-          <circle cx="50" cy="10" r="8" fill="#FFD700" /> {/* Head */}
-          <line x1="50" y1="18" x2="50" y2="30" stroke="#FFD700" strokeWidth="3" /> {/* Body */}
-          <line x1="50" y1="22" x2="60" y2="30" stroke="#FFD700" strokeWidth="2" /> {/* Arm */}
-          <line x1="50" y1="30" x2="40" y2="40" stroke="#FFD700" strokeWidth="2" /> {/* Leg */}
-          <line x1="50" y1="30" x2="60" y2="40" stroke="#FFD700" strokeWidth="2" /> {/* Leg */}
-        </svg>
-      </div>
-      
-      {/* Content */}
-      <div className="relative z-10">
-        <h2 className="text-white text-3xl font-bold mb-2">Join our Cycling Community</h2>
-        <p className="text-white opacity-80 mb-4 max-w-xs">
-          By joining this collection, you will get acquainted with a variety of cycling sports and bike routes.
-        </p>
-        <Button className="bg-white text-bike-blue rounded-full px-4 py-2 font-medium hover:bg-opacity-90 transition-all inline-flex items-center">
-          Welcome to Group 
-          <ChevronRight size={16} className="ml-1" />
-        </Button>
-      </div>
-    </div>
+    </motion.div>
   );
 };
 

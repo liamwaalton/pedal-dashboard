@@ -14,6 +14,7 @@ export type ActivityStats = {
   recentActivities: any[];
   activityTypes: Record<string, number>;
   locations: { name: string, count: number }[];
+  totalCalories?: number; // Optional as it may not be present in older cached data
 };
 
 export type Goal = {
@@ -29,6 +30,7 @@ type ActivityContextType = {
   stats: ActivityStats | null;
   isLoading: boolean;
   error: string | null;
+  isStravaDown: boolean;
   loadActivities: (period?: TimePeriod) => Promise<void>;
   goal: Goal | null;
   setGoal: (goal: Goal) => void;
@@ -55,6 +57,7 @@ const ActivityContext = createContext<ActivityContextType>({
   stats: defaultStats,
   isLoading: false,
   error: null,
+  isStravaDown: false,
   loadActivities: async () => {},
   goal: null,
   setGoal: () => {},
@@ -70,8 +73,16 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
   const [stats, setStats] = useState<ActivityStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isStravaDown, setIsStravaDown] = useState(false);
   const [goal, setGoal] = useState<Goal | null>(null);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('30days');
+  
+  // Add cache keys for local storage
+  const CACHE_KEYS = {
+    ACTIVITIES: 'strava-activities-cache',
+    STATS: 'strava-stats-cache',
+    CACHE_TIME: 'strava-cache-timestamp'
+  };
 
   // Load goal from localStorage on initial render
   useEffect(() => {
@@ -93,8 +104,11 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
         console.error('Error parsing saved time period:', err);
       }
     }
+    
+    // Try loading cached activities and stats
+    tryLoadingCachedData();
   }, []);
-
+  
   // Save goal to localStorage whenever it changes
   useEffect(() => {
     if (goal) {
@@ -104,15 +118,57 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
   
   // Save time period to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('cycling-time-period', timePeriod);
+    localStorage.setItem('cycling-time-period', JSON.stringify(timePeriod));
   }, [timePeriod]);
+  
+  // Function to load data from cache
+  const tryLoadingCachedData = () => {
+    try {
+      // Check if we have cached data
+      const cachedActivities = localStorage.getItem(CACHE_KEYS.ACTIVITIES);
+      const cachedStats = localStorage.getItem(CACHE_KEYS.STATS);
+      const cacheTimestamp = localStorage.getItem(CACHE_KEYS.CACHE_TIME);
+      
+      if (cachedActivities && cachedStats && cacheTimestamp) {
+        const parsedActivities = JSON.parse(cachedActivities);
+        const parsedStats = JSON.parse(cachedStats);
+        const timestamp = parseInt(cacheTimestamp, 10);
+        
+        // Only use cache if it's less than 24 hours old
+        const cacheAge = Date.now() - timestamp;
+        const CACHE_MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours
+        
+        if (cacheAge < CACHE_MAX_AGE) {
+          setActivities(parsedActivities);
+          setStats(parsedStats);
+          return true;
+        }
+      }
+    } catch (err) {
+      console.error('Error loading cached data:', err);
+    }
+    return false;
+  };
+  
+  // Function to cache data
+  const cacheData = (activitiesData: any[], statsData: ActivityStats) => {
+    try {
+      localStorage.setItem(CACHE_KEYS.ACTIVITIES, JSON.stringify(activitiesData));
+      localStorage.setItem(CACHE_KEYS.STATS, JSON.stringify(statsData));
+      localStorage.setItem(CACHE_KEYS.CACHE_TIME, Date.now().toString());
+    } catch (err) {
+      console.error('Error caching activity data:', err);
+    }
+  };
 
+  // Updated loadActivities function
   const loadActivities = async (period?: TimePeriod) => {
     // Only prevent loading if already in progress
     if (isLoading) return;
     
     setIsLoading(true);
     setError(null);
+    setIsStravaDown(false);
     
     try {
       // Use the provided period or the current timePeriod
@@ -131,24 +187,46 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
         }
       }
       
+      const data = await response.json();
+      
       if (!response.ok) {
-        const errorData = await response.json();
-        if (response.status === 401) {
+        // Check if Strava is down
+        if (response.status === 503 && data.isStravaDown) {
+          setIsStravaDown(true);
+          
+          // Try to load from cache if Strava is down
+          const hasCachedData = tryLoadingCachedData();
+          
+          if (hasCachedData) {
+            // We have cached data, so show a warning but don't block the UI
+            setError(`${data.error} Showing cached data from your last session.`);
+          } else {
+            // No cached data, show the full error
+            throw new Error(data.error || 'Strava service is unavailable');
+          }
+        } else if (response.status === 401) {
           throw new Error('Please log in to view your activities');
         } else {
-          throw new Error(errorData.error || 'Failed to load activities');
+          throw new Error(data.error || 'Failed to load activities');
+        }
+      } else {
+        // Success - update state and cache
+        setActivities(data.activities);
+        setStats(data.stats);
+        
+        // Cache successful responses
+        if (data.activities && data.activities.length > 0 && data.stats) {
+          cacheData(data.activities, data.stats);
         }
       }
-      
-      const data = await response.json();
-      setActivities(data.activities);
-      setStats(data.stats);
     } catch (err) {
       console.error('Error loading activities:', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
-      // Clear activities and stats on error to prevent stale data display
-      setActivities([]);
-      setStats(null);
+      
+      // If we don't have data loaded yet, try from cache as a last resort
+      if (!stats) {
+        tryLoadingCachedData();
+      }
     } finally {
       setIsLoading(false);
     }
@@ -182,6 +260,7 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
       stats, 
       isLoading, 
       error, 
+      isStravaDown,
       loadActivities,
       goal,
       setGoal,

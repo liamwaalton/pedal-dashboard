@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { LogIn, LogOut, AlertCircle } from 'lucide-react';
+import { LogIn, LogOut, AlertCircle, User, RefreshCw, AreaChart, Settings } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { useActivity } from '@/lib/activity-context';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 interface ProfileSectionProps {
   name?: string;
@@ -17,6 +17,7 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
   const { loadActivities, isLoading: dataLoading, stats } = useActivity();
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
+  const router = useRouter();
   
   // Check for error parameters in the URL
   useEffect(() => {
@@ -45,11 +46,11 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
   // Show loading state
   if (authLoading) {
     return (
-      <div className="bike-card mb-6 h-[400px] flex flex-col items-center justify-center">
+      <div className="bike-card-gradient-blue p-6 mb-6 flex flex-col items-center justify-center min-h-[350px]">
         <div className="animate-pulse flex flex-col items-center">
-          <div className="h-14 w-14 bg-gray-200 rounded-full mb-4"></div>
-          <div className="h-4 w-32 bg-gray-200 rounded mb-2"></div>
-          <div className="h-3 w-24 bg-gray-200 rounded"></div>
+          <div className="h-16 w-16 bg-white/50 rounded-xl mb-4"></div>
+          <div className="h-4 w-32 bg-white/50 rounded mb-2"></div>
+          <div className="h-3 w-24 bg-white/50 rounded"></div>
         </div>
       </div>
     );
@@ -57,48 +58,58 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
 
   if (!isLoggedIn) {
     return (
-      <div className="bike-card mb-6 h-[400px] flex flex-col">
-        <h2 className="text-sm text-gray-500 mb-4">Login</h2>
+      <div className="bike-card-gradient-orange p-6 mb-6 flex flex-col min-h-[350px]">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="bg-white p-1.5 rounded-lg shadow-sm">
+            <User className="h-4 w-4 text-bike-orange" />
+          </div>
+          <h2 className="font-medium text-gray-800">Your Profile</h2>
+          <div className="ml-auto">
+            <button 
+              onClick={() => router.push('/settings')}
+              className="bg-white p-1.5 rounded-lg shadow-sm hover:bg-gray-100 transition-colors"
+            >
+              <Settings className="h-4 w-4 text-gray-500" />
+            </button>
+          </div>
+        </div>
+        
         <div className="flex flex-col items-center justify-center py-6 gap-4 flex-grow">
-          <div className="flex justify-center">
-            <svg viewBox="0 0 40 40" width="80" height="80" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="20" cy="20" r="18" fill="#FC4C02" />
+          <div className="bg-gradient-to-br from-[#FC4C02] to-[#FF703D] rounded-xl p-4 shadow-md mb-2">
+            <svg viewBox="0 0 40 40" width="50" height="50" xmlns="http://www.w3.org/2000/svg">
               <path d="M23.5,19.3l-3-6.6l-3,6.6h6.1M25.7,24.4l-3-6.6h-7.5l-3,6.6h4.2l1.7-3.8h6.1l1.7,3.8h4.2" fill="white" />
             </svg>
           </div>
           
           {error ? (
-            <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-2 text-sm text-red-600 flex items-start">
+            <div className="bg-red-50 border border-red-100 rounded-xl p-3 mb-2 text-sm text-red-600 flex items-start shadow-sm">
               <AlertCircle size={16} className="mr-2 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="font-medium">Error</p>
+                <p className="font-medium">Configuration Error</p>
                 <p>{error}</p>
-                <p className="mt-1 text-xs">
-                  Please check your .env.local file and ensure STRAVA_CLIENT_ID and NEXT_PUBLIC_STRAVA_CLIENT_ID are set correctly.
+                <p className="mt-1 text-xs text-red-500">
+                  Check your .env.local file and ensure API credentials are set correctly.
                 </p>
               </div>
             </div>
           ) : (
-            <p className="text-center text-gray-700 mb-2">
-              Connect with Strava to track your cycling routes and join the community
+            <p className="text-center text-gray-700 mb-2 px-4">
+              Connect with Strava to sync your cycling activities and track your progress
             </p>
           )}
           
           <Button 
             onClick={() => {
-              // Clear any previous errors
               setError(null);
               login();
             }} 
-            className="bg-[#FC4C02] hover:bg-[#e64500] text-white rounded-full gap-2 w-full"
+            className="bike-button-orange rounded-lg gap-2 w-full shadow-sm"
           >
             <LogIn size={18} />
-            Login with Strava
+            Connect with Strava
           </Button>
           
-          <Button
-            variant="outline"
-            size="sm"
+          <button 
             onClick={async () => {
               try {
                 const response = await fetch('/api/auth/strava/check-config');
@@ -116,10 +127,10 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
                 setError('Failed to check Strava configuration');
               }
             }}
-            className="text-xs"
+            className="text-xs text-gray-500 hover:text-gray-700 hover:underline mt-2"
           >
-            Check Configuration
-          </Button>
+            Check API Configuration
+          </button>
         </div>
       </div>
     );
@@ -133,57 +144,102 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
   const dataAlreadyLoaded = stats !== null;
 
   return (
-    <div className="bike-card mb-6 h-[400px] flex flex-col">
-      <h2 className="text-sm text-gray-500 mb-4">Profile Info</h2>
+    <div className="bike-card-gradient-blue p-6 mb-6 flex flex-col min-h-[350px]">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="bg-white p-1.5 rounded-lg shadow-sm">
+          <User className="h-4 w-4 text-bike-blue" />
+        </div>
+        <h2 className="font-medium text-gray-800">Athlete Profile</h2>
+        <div className="ml-auto">
+          <button 
+            onClick={() => router.push('/settings')}
+            className="bg-white p-1.5 rounded-lg shadow-sm hover:bg-gray-100 transition-colors"
+          >
+            <Settings className="h-4 w-4 text-gray-500" />
+          </button>
+        </div>
+      </div>
+      
       <div className="flex items-center gap-4 mb-6">
-        <div className="h-14 w-14 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-16 w-16 rounded-xl overflow-hidden shadow-sm bg-white">
           {profileImage ? (
             <img src={profileImage} alt={fullName} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-bike-blue/20"></div>
+            <div className="w-full h-full bg-bike-blue/10 flex items-center justify-center">
+              <User className="h-6 w-6 text-bike-blue/50" />
+            </div>
           )}
         </div>
         <div>
-          <h3 className="font-semibold text-gray-800">{fullName}</h3>
+          <h3 className="font-semibold text-gray-800 text-lg">{fullName}</h3>
           <p className="text-sm text-gray-500">{email || "Strava Athlete"}</p>
         </div>
       </div>
       
-      <div className="mb-6 flex-grow flex items-center justify-center">
-        <div className="w-32 h-32 bg-bike-blue/10 rounded-full flex items-center justify-center">
-          <span className="text-4xl">🚲</span>
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-2 h-2 rounded-full bg-bike-blue"></div>
+            <p className="text-xs text-gray-500">Activities</p>
+          </div>
+          <p className="font-bold text-gray-800 text-lg">
+            {stats?.totalActivities || '0'}
+          </p>
+        </div>
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-2 h-2 rounded-full bg-bike-orange"></div>
+            <p className="text-xs text-gray-500">Avg Duration</p>
+          </div>
+          <p className="font-bold text-gray-800 text-lg">
+            {stats ? `${(Number(stats.totalMovingTimeHours || 0) / Number(stats.totalActivities || 1)).toFixed(1)}h` : '0h'}
+          </p>
         </div>
       </div>
       
-      <div className="grid grid-cols-3 gap-2 mb-6 text-center">
-        <div>
-          <p className="text-xs text-gray-500">Model</p>
-          <p className="font-semibold text-gray-800">GT 869</p>
+      {stats && stats.totalActivities > 0 ? (
+        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 mb-6">
+          <div className="flex justify-between items-center mb-1">
+            <div className="flex items-center gap-2">
+              <AreaChart size={14} className="text-bike-blue" />
+              <p className="text-xs text-gray-700 font-medium">Stats summary</p>
+            </div>
+            <p className="text-xs text-gray-500">{stats.totalActivities} rides</p>
+          </div>
+          <div className="flex flex-col gap-2 mt-2">
+            <div className="flex justify-between items-center">
+              <p className="text-xs text-gray-500">Total Distance</p>
+              <p className="text-xs font-medium">{stats.totalDistanceKm} km</p>
+            </div>
+            <div className="flex justify-between items-center">
+              <p className="text-xs text-gray-500">Total Time</p>
+              <p className="text-xs font-medium">{stats.totalMovingTimeHours} hrs</p>
+            </div>
+            <div className="flex justify-between items-center">
+              <p className="text-xs text-gray-500">Avg Speed</p>
+              <p className="text-xs font-medium">{stats.averageSpeed} km/h</p>
+            </div>
+          </div>
         </div>
-        <div>
-          <p className="text-xs text-gray-500">Speed</p>
-          <p className="font-semibold text-gray-800">50KM/h</p>
-        </div>
-        <div>
-          <p className="text-xs text-gray-500">Type</p>
-          <p className="font-semibold text-gray-800">Classic</p>
-        </div>
-      </div>
+      ) : (
+        <div className="flex-grow"></div>
+      )}
       
       <div className="flex space-x-2 mt-auto">
         <Button 
-          className="bg-bike-orange text-white hover:bg-bike-orange/90 flex-1"
-          onClick={loadActivities}
+          className="bike-button-orange rounded-lg gap-2 flex-1 shadow-sm"
+          onClick={() => loadActivities()}
           disabled={dataLoading}
         >
+          <RefreshCw size={16} className={dataLoading ? "animate-spin" : ""} />
           {dataLoading ? "Loading..." : dataAlreadyLoaded ? "Refresh Data" : "Load Data"}
         </Button>
         <Button 
           variant="outline" 
-          className="flex-none" 
+          className="flex-none rounded-lg border border-gray-200 shadow-sm" 
           onClick={logout}
         >
-          <LogOut size={18} className="mr-1" />
+          <LogOut size={16} className="mr-1" />
           Logout
         </Button>
       </div>

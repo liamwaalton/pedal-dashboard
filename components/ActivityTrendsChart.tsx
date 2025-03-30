@@ -219,7 +219,7 @@ const ActivityTrendsChart = () => {
     const ctx = chartRef.current.getContext('2d');
     
     if (ctx) {
-      // Create new chart
+      // Create new chart with improved styling
       chartInstance.current = new Chart(ctx, {
         type: 'line',
         data: {
@@ -228,26 +228,32 @@ const ActivityTrendsChart = () => {
             {
               label: 'Distance',
               data: distanceData,
-              borderColor: '#F97316', // Orange
-              backgroundColor: 'rgba(249, 115, 22, 0.2)',
+              borderColor: '#FF5A1F', // Updated orange
+              backgroundColor: 'rgba(255, 90, 31, 0.15)',
               fill: true,
               tension: 0.4,
               yAxisID: 'y',
-              pointBackgroundColor: '#F97316',
+              pointBackgroundColor: '#FF5A1F',
+              pointBorderColor: 'rgba(255, 255, 255, 0.8)',
               pointRadius: 4,
               pointHoverRadius: 6,
+              pointBorderWidth: 2,
+              borderWidth: 2.5,
             },
             {
               label: 'Time',
               data: timeData,
-              borderColor: '#3B82F6', // Blue
-              backgroundColor: 'rgba(59, 130, 246, 0.2)',
+              borderColor: '#3B82F6', // Updated blue
+              backgroundColor: 'rgba(59, 130, 246, 0.15)',
               fill: true,
               tension: 0.4,
               yAxisID: 'y1',
               pointBackgroundColor: '#3B82F6',
+              pointBorderColor: 'rgba(255, 255, 255, 0.8)',
               pointRadius: 4,
               pointHoverRadius: 6,
+              pointBorderWidth: 2,
+              borderWidth: 2.5,
             }
           ]
         },
@@ -260,30 +266,20 @@ const ActivityTrendsChart = () => {
           },
           plugins: {
             legend: {
-              display: true,
-              position: 'top',
-              align: 'center',
-              labels: {
-                usePointStyle: true,
-                boxWidth: 8,
-                boxHeight: 8,
-                padding: 10,
-                color: '#6B7280', // text-gray-500
-                font: {
-                  size: 12,
-                }
-              }
+              display: false, // Hide the legend as we have custom indicators
             },
             tooltip: {
               backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              titleColor: '#111827', // text-gray-900
-              bodyColor: '#4B5563', // text-gray-600
-              borderColor: '#E5E7EB', // border-gray-200
+              titleColor: '#333',
+              bodyColor: '#666',
+              borderColor: 'rgba(200, 200, 200, 0.25)',
               borderWidth: 1,
+              cornerRadius: 8,
               padding: 10,
-              boxPadding: 4,
+              boxPadding: 5,
               usePointStyle: true,
               callbacks: {
+                // Format tooltip values
                 label: function(context) {
                   let label = context.dataset.label || '';
                   if (label) {
@@ -291,47 +287,41 @@ const ActivityTrendsChart = () => {
                   }
                   if (context.parsed.y !== null) {
                     label += context.dataset.yAxisID === 'y' 
-                      ? context.parsed.y + ' km' 
-                      : context.parsed.y + ' hrs';
+                      ? context.parsed.y.toFixed(1) + ' km'
+                      : context.parsed.y.toFixed(1) + ' hrs';
                   }
                   return label;
                 }
               }
-            }
+            },
           },
           scales: {
             x: {
               grid: {
-                display: true,
-                color: '#F3F4F6', // border-gray-100
+                display: false,
               },
               ticks: {
-                color: '#9CA3AF', // text-gray-400
+                color: 'rgba(100, 116, 139, 0.8)',
                 font: {
                   size: 10,
-                }
-              }
+                },
+                maxRotation: 0,
+              },
             },
             y: {
               type: 'linear',
               display: true,
               position: 'left',
-              title: {
-                display: true,
-                text: 'Distance (km)',
-                color: '#F97316', // Orange
-                font: {
-                  size: 10,
-                }
-              },
               grid: {
-                display: true,
-                color: '#F3F4F6', // border-gray-100
+                color: 'rgba(203, 213, 225, 0.3)',
               },
               ticks: {
-                color: '#9CA3AF', // text-gray-400
+                color: 'rgba(100, 116, 139, 0.8)',
                 font: {
                   size: 10,
+                },
+                callback: function(value) {
+                  return value + ' km';
                 }
               }
             },
@@ -339,21 +329,16 @@ const ActivityTrendsChart = () => {
               type: 'linear',
               display: true,
               position: 'right',
-              title: {
-                display: true,
-                text: 'Time (hours)',
-                color: '#3B82F6', // Blue
-                font: {
-                  size: 10,
-                }
-              },
               grid: {
                 display: false,
               },
               ticks: {
-                color: '#9CA3AF', // text-gray-400
+                color: 'rgba(100, 116, 139, 0.8)',
                 font: {
                   size: 10,
+                },
+                callback: function(value) {
+                  return value + ' h';
                 }
               }
             }
@@ -365,15 +350,18 @@ const ActivityTrendsChart = () => {
 
   if (isLoading) {
     return (
-      <div className="h-[300px] bg-gray-50 rounded-lg flex items-center justify-center">
-        <div className="animate-pulse text-gray-400">Loading chart data...</div>
+      <div className="h-[200px] w-full flex items-center justify-center bg-gray-50/50 rounded-lg">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-4 w-32 bg-gray-200 rounded mb-2.5"></div>
+          <div className="h-2 w-24 bg-gray-200 rounded"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-[300px] bg-gray-50 rounded-lg p-2">
-      <canvas ref={chartRef} />
+    <div className="h-[220px] w-full relative">
+      <canvas ref={chartRef}></canvas>
     </div>
   );
 };

@@ -15,13 +15,63 @@ export async function GET(request: NextRequest) {
   try {
     // Fetch activities from Strava API - get more activities for longer time periods
     const perPage = period === 'year' ? 200 : period === 'month' ? 100 : 50;
-    const response = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}`, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`
+    
+    // Add retries for Strava API calls
+    const maxRetries = 3;
+    let retries = 0;
+    let response;
+    
+    while (retries < maxRetries) {
+      try {
+        response = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}`, {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          },
+          // Add timeout to prevent hanging requests
+          signal: AbortSignal.timeout(10000) // 10 second timeout
+        });
+        
+        // If successful, break the retry loop
+        if (response.ok) break;
+        
+        // If unauthorized, don't retry
+        if (response.status === 401) break;
+        
+        // If it's a server error (5xx), retry
+        if (response.status >= 500) {
+          retries++;
+          // Wait with exponential backoff before retrying (1s, 2s, 4s)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, retries - 1) * 1000));
+          continue;
+        }
+        
+        // For other error codes, don't retry
+        break;
+      } catch (fetchError) {
+        // Network errors or timeouts - retry
+        retries++;
+        if (retries >= maxRetries) throw fetchError;
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, retries - 1) * 1000));
       }
-    });
+    }
+    
+    // Check if we have a response object
+    if (!response) {
+      throw new Error('Failed to connect to Strava API after retries');
+    }
 
     if (!response.ok) {
+      // Handle specific error cases
+      if (response.status === 401) {
+        return NextResponse.json({ error: 'Authentication expired, please log in again' }, { status: 401 });
+      } else if (response.status === 429) {
+        return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+      } else if (response.status >= 500) {
+        return NextResponse.json({ 
+          error: 'Strava service is currently unavailable. We\'ll try to show cached data if available.',
+          isStravaDown: true
+        }, { status: 503 });
+      }
       throw new Error(`Strava API error: ${response.statusText}`);
     }
 
@@ -36,7 +86,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ activities: filteredActivities, stats });
   } catch (error) {
     console.error('Error fetching Strava activities:', error);
-    return NextResponse.json({ error: 'Failed to fetch activities' }, { status: 500 });
+    
+    // Determine if it's a network error or timeout
+    const isNetworkError = error instanceof Error && 
+      (error.name === 'AbortError' || error.message.includes('network') || error.message.includes('fetch'));
+    
+    return NextResponse.json({ 
+      error: isNetworkError 
+        ? 'Unable to connect to Strava. Please check your internet connection and try again.' 
+        : 'Failed to fetch activities. Please try again later.',
+      isStravaDown: isNetworkError
+    }, { status: 503 });
   }
 }
 

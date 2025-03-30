@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Home, MessageSquare, Map, Settings } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { Home, MessageSquare, Map, TrendingUp, LayoutDashboard, Newspaper } from 'lucide-react';
 import SearchInput from '@/components/SearchInput';
 import SidebarNavItem from '@/components/SidebarNavItem';
 import LocationItem from '@/components/LocationItem';
@@ -12,6 +11,7 @@ import MapCard from '@/components/MapCard';
 import ProfileSection from '@/components/ProfileSection';
 import SupportCard from '@/components/SupportCard';
 import GoalSidebarCard from '@/components/GoalSidebarCard';
+import ServiceStatusBanner from '@/components/ServiceStatusBanner';
 import { useRouter } from 'next/navigation';
 import { useActivity } from '@/lib/activity-context';
 import { useAuth } from '@/lib/auth-context';
@@ -28,95 +28,99 @@ export default function HomePage() {
   };
   
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-background to-blue-50/50 p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm p-6 md:p-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] overflow-hidden shadow-md border border-gray-100 p-4 md:p-8 lg:p-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             {/* Left Sidebar */}
-            <div className="lg:col-span-3">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="flex items-center justify-center h-8 w-8 bg-gray-900 rounded-md text-white">
-                  <span className="text-xs">🚲</span>
+            <div className="lg:col-span-3 flex flex-col">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="flex items-center justify-center h-10 w-10 bg-gradient-to-br from-bike-blue to-bike-purple rounded-xl text-white shadow-sm">
+                  <LayoutDashboard size={20} />
                 </div>
-                <h1 className="text-lg font-bold">Pedal Pulse</h1>
+                <div>
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Pedal Pulse</h1>
+                  <p className="text-xs text-gray-500">Cycling dashboard</p>
+                </div>
               </div>
-              
-              <p className="text-sm text-gray-500 mb-4">Your Management dashboard</p>
               
               <div className="mb-6">
-                <SearchInput placeholder="Search Your Items ..." />
+                <SearchInput placeholder="Search your rides..." />
               </div>
               
-              <div className="mb-4">
-                <h2 className="text-sm font-medium text-gray-500 mb-2">Main Items</h2>
-                <nav className="space-y-1">
-                  <SidebarNavItem 
-                    icon={<Home size={20} />} 
-                    label="Home" 
-                    active={activeNavItem === 'home'} 
-                    onClick={() => handleNavigation('/', 'home')}
-                  />
-                  <SidebarNavItem 
-                    icon={<MessageSquare size={20} />} 
-                    label="Message" 
-                    active={activeNavItem === 'message'} 
-                    onClick={() => handleNavigation('/messages', 'message')}
-                  />
-                  <SidebarNavItem 
-                    icon={<Map size={20} />} 
-                    label="Trend Places" 
-                    active={activeNavItem === 'places'} 
-                    onClick={() => handleNavigation('/trend-places', 'places')}
-                  />
-                  <SidebarNavItem 
-                    icon={<Settings size={20} />} 
-                    label="Setting" 
-                    active={activeNavItem === 'settings'} 
-                    onClick={() => handleNavigation('/settings', 'settings')}
-                  />
-                </nav>
-              </div>
-              
-              <div className="mb-4">
-                <h2 className="text-sm font-medium text-gray-500 mb-2">Your Favorite Locations</h2>
+              <div className="space-y-6">
                 <div>
-                  {!isLoggedIn ? (
-                    <div className="text-sm text-gray-400">Connect with Strava to see your favorite locations</div>
-                  ) : stats && stats.locations && stats.locations.length > 0 ? (
-                    stats.locations.map((location, index) => (
-                      <LocationItem 
-                        key={location.name}
-                        name={location.name} 
-                        value={`+${location.count}`} 
-                        active={index === 0}
-                        color={index === 0 ? "bg-bike-orange" : undefined}
-                      />
-                    ))
-                  ) : isLoading ? (
-                    <div className="text-sm text-gray-400">Loading locations...</div>
-                  ) : (
-                    <div className="text-sm text-gray-400">No locations found. Click "Load Data" to fetch your ride locations.</div>
-                  )}
+                  <h2 className="text-xs uppercase font-semibold text-gray-500 tracking-wider mb-3 px-2">Navigation</h2>
+                  <nav className="space-y-1.5">
+                    <SidebarNavItem 
+                      icon={<Home size={18} />} 
+                      label="Dashboard" 
+                      active={activeNavItem === 'home'} 
+                      onClick={() => handleNavigation('/', 'home')}
+                    />
+                    <SidebarNavItem 
+                      icon={<TrendingUp size={18} />} 
+                      label="Activity" 
+                      active={activeNavItem === 'activity'} 
+                      onClick={() => handleNavigation('/activity', 'activity')}
+                    />
+                    <SidebarNavItem 
+                      icon={<Map size={18} />} 
+                      label="Routes" 
+                      active={activeNavItem === 'routes'} 
+                      onClick={() => handleNavigation('/routes', 'routes')}
+                    />
+                    <SidebarNavItem 
+                      icon={<MessageSquare size={18} />} 
+                      label="Community" 
+                      active={activeNavItem === 'community'} 
+                      onClick={() => handleNavigation('/community', 'community')}
+                    />
+                    <SidebarNavItem 
+                      icon={<Newspaper size={18} />} 
+                      label="News" 
+                      active={activeNavItem === 'news'} 
+                      onClick={() => handleNavigation('/news', 'news')}
+                    />
+                  </nav>
                 </div>
+                
+                <div className="bike-card-gradient-blue p-4">
+                  <h2 className="text-xs uppercase font-semibold text-gray-600 tracking-wider mb-3">Popular Routes</h2>
+                  <div className="space-y-1.5">
+                    {!isLoggedIn ? (
+                      <div className="text-sm text-gray-400 py-2">Connect with Strava to see your popular routes</div>
+                    ) : stats && stats.locations && stats.locations.length > 0 ? (
+                      stats.locations.map((location, index) => (
+                        <LocationItem 
+                          key={location.name}
+                          name={location.name} 
+                          value={`+${location.count}`} 
+                          active={index === 0}
+                          color={index === 0 ? "bg-gradient-to-r from-bike-orange to-amber-500" : undefined}
+                        />
+                      ))
+                    ) : isLoading ? (
+                      <div className="text-sm text-gray-400 py-2">Loading routes...</div>
+                    ) : (
+                      <div className="text-sm text-gray-400 py-2">No routes found. Click "Load Data" to fetch your ride routes.</div>
+                    )}
+                  </div>
+                </div>
+                
+                <GoalSidebarCard />
               </div>
-              
-              <GoalSidebarCard />
             </div>
             
             {/* Middle Section */}
-            <div className="lg:col-span-6">
+            <div className="lg:col-span-6 space-y-6">
+              <ServiceStatusBanner />
               <CommunityBanner />
-              
-              {/* Two-column layout with StatisticsCard spanning full width */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div className="md:col-span-2">
-                  <StatisticsCard />
-                </div>
-              </div>
+              <StatisticsCard />
             </div>
             
             {/* Right Sidebar */}
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-3 space-y-6">
               <ProfileSection />
               <MapCard />
             </div>
