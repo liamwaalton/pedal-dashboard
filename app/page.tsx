@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Home, MessageSquare, Map, TrendingUp, LayoutDashboard, Newspaper } from 'lucide-react';
+import { Home, MessageSquare, Map, TrendingUp, LayoutDashboard, Newspaper, LogOut } from 'lucide-react';
 import SearchInput from '@/components/SearchInput';
 import SidebarNavItem from '@/components/SidebarNavItem';
 import LocationItem from '@/components/LocationItem';
@@ -12,6 +12,8 @@ import ProfileSection from '@/components/ProfileSection';
 import SupportCard from '@/components/SupportCard';
 import GoalSidebarCard from '@/components/GoalSidebarCard';
 import ServiceStatusBanner from '@/components/ServiceStatusBanner';
+import LoginOverlay from '@/components/LoginOverlay';
+import ComingSoonOverlay from '@/components/ComingSoonOverlay';
 import { useRouter } from 'next/navigation';
 import { useActivity } from '@/lib/activity-context';
 import { useAuth } from '@/lib/auth-context';
@@ -20,16 +22,54 @@ export default function HomePage() {
   const [activeNavItem, setActiveNavItem] = useState('home');
   const router = useRouter();
   const { stats, loadActivities, isLoading } = useActivity();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, logout, isLoading: authLoading } = useAuth();
+  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [comingSoonConfig, setComingSoonConfig] = useState({
+    title: '',
+    description: ''
+  });
   
   const handleNavigation = (path: string, navItem: string) => {
+    // Set Coming Soon configs for different sections
+    if (navItem === 'activity' || navItem === 'community' || navItem === 'news' || navItem === 'routes') {
+      setActiveNavItem(navItem);
+      
+      let title = '';
+      let description = '';
+      
+      switch (navItem) {
+        case 'activity':
+          title = 'Challenges Coming Soon';
+          description = 'We\'re working hard to bring you exciting cycling challenges to push your limits and connect with other riders.';
+          break;
+        case 'community':
+          title = 'Community Hub Coming Soon';
+          description = 'Connect with fellow cyclists, join group rides, and share your cycling experiences in our upcoming community hub.';
+          break;
+        case 'news':
+          title = 'Cycling News Coming Soon';
+          description = 'Stay updated with the latest cycling trends, gear reviews, and industry news curated just for you.';
+          break;
+        case 'routes':
+          title = 'Routes Explorer Coming Soon';
+          description = 'Discover new cycling routes, save your favorites, and get detailed navigation for your next adventure.';
+          break;
+      }
+      
+      setComingSoonConfig({ title, description });
+      setShowComingSoon(true);
+      return;
+    }
+    
+    // Regular navigation for other sections
     setActiveNavItem(navItem);
     router.push(path);
   };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-blue-50/50 p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
+      {/* Dashboard Content */}
+      <div className={`max-w-7xl mx-auto ${(!isLoggedIn && !authLoading) || showComingSoon ? 'filter blur-sm' : ''}`}>
         <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] overflow-hidden shadow-md border border-gray-100 p-4 md:p-8 lg:p-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             {/* Left Sidebar */}
@@ -60,7 +100,7 @@ export default function HomePage() {
                     />
                     <SidebarNavItem 
                       icon={<TrendingUp size={18} />} 
-                      label="Activity" 
+                      label="Challenges" 
                       active={activeNavItem === 'activity'} 
                       onClick={() => handleNavigation('/activity', 'activity')}
                     />
@@ -82,6 +122,16 @@ export default function HomePage() {
                       active={activeNavItem === 'news'} 
                       onClick={() => handleNavigation('/news', 'news')}
                     />
+                    {isLoggedIn && (
+                      <>
+                        <div className="my-2 border-t border-gray-200"></div>
+                        <SidebarNavItem 
+                          icon={<LogOut size={18} />} 
+                          label="Logout" 
+                          onClick={logout}
+                        />
+                      </>
+                    )}
                   </nav>
                 </div>
                 
@@ -127,6 +177,18 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+      
+      {/* Login Overlay */}
+      {!isLoggedIn && !authLoading && <LoginOverlay />}
+      
+      {/* Coming Soon Overlay */}
+      {showComingSoon && isLoggedIn && (
+        <ComingSoonOverlay 
+          title={comingSoonConfig.title}
+          description={comingSoonConfig.description}
+          onClose={() => setShowComingSoon(false)} 
+        />
+      )}
     </div>
   );
 } 

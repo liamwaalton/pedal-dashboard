@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { LogIn, LogOut, AlertCircle, User, RefreshCw, AreaChart, Settings } from 'lucide-react';
+import { LogIn, LogOut, AlertCircle, User, RefreshCw, AreaChart, Settings, Flame } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { useActivity } from '@/lib/activity-context';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -98,17 +98,6 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
             </p>
           )}
           
-          <Button 
-            onClick={() => {
-              setError(null);
-              login();
-            }} 
-            className="bike-button-orange rounded-lg gap-2 w-full shadow-sm"
-          >
-            <LogIn size={18} />
-            Connect with Strava
-          </Button>
-          
           <button 
             onClick={async () => {
               try {
@@ -139,6 +128,13 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
   // Display user profile when logged in
   const fullName = athlete ? `${athlete.firstname} ${athlete.lastname}` : name || "Jerome Bell";
   const profileImage = athlete?.profile || null;
+
+  // Debug information - only log in development
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('Profile rendering with athlete data:', athlete);
+    console.log('Using profile image:', profileImage);
+    console.log('Using name:', fullName);
+  }
 
   // Determine if data is already loaded
   const dataAlreadyLoaded = stats !== null;
@@ -176,27 +172,6 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
         </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-2 h-2 rounded-full bg-bike-blue"></div>
-            <p className="text-xs text-gray-500">Activities</p>
-          </div>
-          <p className="font-bold text-gray-800 text-lg">
-            {stats?.totalActivities || '0'}
-          </p>
-        </div>
-        <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-2 h-2 rounded-full bg-bike-orange"></div>
-            <p className="text-xs text-gray-500">Avg Duration</p>
-          </div>
-          <p className="font-bold text-gray-800 text-lg">
-            {stats ? `${(Number(stats.totalMovingTimeHours || 0) / Number(stats.totalActivities || 1)).toFixed(1)}h` : '0h'}
-          </p>
-        </div>
-      </div>
-      
       {stats && stats.totalActivities > 0 ? (
         <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100 mb-6">
           <div className="flex justify-between items-center mb-1">
@@ -219,6 +194,10 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
               <p className="text-xs text-gray-500">Avg Speed</p>
               <p className="text-xs font-medium">{stats.averageSpeed} km/h</p>
             </div>
+            <div className="flex justify-between items-center">
+              <p className="text-xs text-gray-500">Total Calories</p>
+              <p className="text-xs font-medium">{stats.totalCalories || '0'} kcal</p>
+            </div>
           </div>
         </div>
       ) : (
@@ -234,15 +213,36 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
           <RefreshCw size={16} className={dataLoading ? "animate-spin" : ""} />
           {dataLoading ? "Loading..." : dataAlreadyLoaded ? "Refresh Data" : "Load Data"}
         </Button>
+        
         <Button 
           variant="outline" 
-          className="flex-none rounded-lg border border-gray-200 shadow-sm" 
+          className="rounded-lg shadow-sm" 
           onClick={logout}
         >
-          <LogOut size={16} className="mr-1" />
-          Logout
+          <LogOut size={16} className="text-gray-600" />
         </Button>
       </div>
+      
+      {/* Debug button - only shows in development */}
+      {process.env.NODE_ENV !== 'production' && (
+        <div className="mt-2">
+          <button
+            onClick={async () => {
+              try {
+                const response = await fetch('/api/auth/strava/debug');
+                const data = await response.json();
+                console.log('Auth debug info:', data);
+                alert('Debug info logged to console');
+              } catch (err) {
+                console.error('Error getting debug info:', err);
+              }
+            }}
+            className="text-xs text-gray-500 hover:text-gray-700 hover:underline"
+          >
+            Debug Auth State
+          </button>
+        </div>
+      )}
     </div>
   );
 };

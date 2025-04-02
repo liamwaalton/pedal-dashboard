@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Sparkles, Brain, Cpu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
@@ -21,24 +21,30 @@ const CommunityBanner = () => {
     >
       <div className="overflow-hidden rounded-xl shadow-lg relative">
         {/* Main content area with gradient background */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-6 sm:p-8 md:p-10">
+        <div className="bg-gradient-to-r from-purple-600 to-bike-blue p-4 sm:p-5 md:p-6">
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-center">
               
               {/* Text content - left side */}
               <div className="md:w-2/3 mb-8 md:mb-0 md:pr-8">
-                <h2 className="text-white text-3xl sm:text-4xl font-bold mb-4">
-                  Join our Cycling Community
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="bg-white/20 p-1.5 rounded-md">
+                    <Sparkles className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-white text-sm font-medium">Coming Soon</span>
+                </div>
+                <h2 className="text-white text-2xl sm:text-3xl font-bold mb-2">
+                  AI-Powered Cycling Platform
                 </h2>
-                <p className="text-white/90 text-lg mb-6 max-w-xl">
-                  By joining this collection, you will get acquainted with a variety of cycling sports and bike routes.
+                <p className="text-white/90 text-base mb-4 max-w-xl">
+                  Experience the future of cycling with AI-driven personalized training plans, route recommendations, and performance insights.
                 </p>
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Button className="bg-white border-0 text-blue-600 hover:bg-blue-50 hover:text-blue-700 font-semibold px-6 py-3 rounded-lg text-base shadow-md">
-                    Welcome to Group
+                  <Button className="bg-white border-0 text-purple-600 hover:bg-purple-50 hover:text-purple-700 font-semibold px-4 py-2 rounded-lg text-sm shadow-md">
+                    Join Waitlist
                     <ChevronRight className="ml-2 h-5 w-5" />
                   </Button>
                 </motion.div>
@@ -46,40 +52,25 @@ const CommunityBanner = () => {
               
               {/* Illustration - right side */}
               <div className="md:w-1/3 flex justify-center">
-                <div className="relative w-full max-w-xs">
-                  {/* Circle background with bicycle SVG */}
+                <div className="relative w-full max-w-[120px]">
+                  {/* Circle background with AI + Bicycle icon */}
                   <div className="aspect-square rounded-full bg-white/20 flex items-center justify-center relative overflow-hidden">
-                    <img 
-                      src="/images/bicycle-illustration.svg" 
-                      alt="Cycling illustration" 
-                      className="w-full h-auto object-contain" 
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        const fallbackSvg = document.getElementById('fallback-svg');
-                        if (fallbackSvg) {
-                          fallbackSvg.style.display = 'block';
-                        }
-                      }}
-                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="absolute w-24 h-24 bg-purple-400/30 rounded-full animate-pulse"></div>
+                      <div className="absolute w-32 h-32 border-4 border-white/30 rounded-full"></div>
+                      <div className="relative z-10">
+                        <Brain className="h-10 w-10 text-white" />
+                      </div>
+                    </div>
                     
-                    {/* Fallback SVG if image fails to load */}
-                    <svg 
-                      id="fallback-svg"
-                      style={{ display: 'none' }}
-                      width="150" 
-                      height="150" 
-                      viewBox="0 0 150 150" 
-                      fill="none" 
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-3/4 h-auto"
-                    >
-                      <circle cx="75" cy="75" r="73" stroke="white" strokeWidth="3" fillOpacity="0.1" fill="white" />
-                      <circle cx="40" cy="106" r="15" stroke="white" strokeWidth="4" fill="white" fillOpacity="0.2" />
-                      <circle cx="110" cy="106" r="15" stroke="white" strokeWidth="4" fill="white" fillOpacity="0.2" />
-                      <path d="M40,106 L75,56 L110,106" stroke="white" strokeWidth="4" fill="none" />
-                      <path d="M75,56 L75,96" stroke="white" strokeWidth="4" fill="none" />
-                      <path d="M40,106 L75,96" stroke="white" strokeWidth="4" fill="none" />
-                    </svg>
+                    {/* Animated circuits */}
+                    <div className="absolute inset-0 opacity-20">
+                      <svg width="100%" height="100%" viewBox="0 0 100 100">
+                        <path d="M10,50 Q30,20 50,50 Q70,80 90,50" stroke="white" strokeWidth="0.5" fill="none" />
+                        <path d="M10,60 Q30,90 50,60 Q70,30 90,60" stroke="white" strokeWidth="0.5" fill="none" />
+                        <path d="M50,10 Q20,30 50,50 Q80,70 50,90" stroke="white" strokeWidth="0.5" fill="none" />
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -88,11 +79,11 @@ const CommunityBanner = () => {
         </div>
         
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-40 h-40 bg-blue-400 rounded-full opacity-30 -mr-10 -mt-10 hidden md:block" />
+        <div className="absolute top-0 right-0 w-40 h-40 bg-purple-400 rounded-full opacity-30 -mr-10 -mt-10 hidden md:block" />
         <div className="absolute bottom-0 left-0 w-60 h-60 bg-blue-400 rounded-full opacity-20 -ml-20 -mb-20 hidden md:block" />
         
         {/* Bottom accent strip */}
-        <div className="h-2 bg-gradient-to-r from-blue-400 to-indigo-500" />
+        <div className="h-2 bg-gradient-to-r from-purple-400 to-blue-500" />
       </div>
     </motion.div>
   );

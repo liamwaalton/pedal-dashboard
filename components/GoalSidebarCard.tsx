@@ -26,17 +26,6 @@ const GoalSidebarCard = () => {
         <p className="text-xs text-gray-500 text-center mb-3">
           Connect with Strava to set and track your cycling goals
         </p>
-        
-        <div className="text-center">
-          <Button 
-            onClick={login}
-            className="bg-[#FC4C02] hover:bg-[#e64500] text-white rounded-full gap-2 px-3 py-1 text-xs"
-            size="sm"
-          >
-            <LogIn size={12} />
-            Connect
-          </Button>
-        </div>
       </div>
     );
   }

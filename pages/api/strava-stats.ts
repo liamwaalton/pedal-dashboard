@@ -28,11 +28,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(reauthResponse.status).json({ error: "Failed to refresh token" });
     }
 
-    const reAuthJson: { access_token: string } = await reauthResponse.json();
+    const reAuthJson = await reauthResponse.json();
+    
+    // Fallback to the original athlete ID if it's not in the token response
+    const athleteId = reAuthJson.athlete?.id || "46396287"; // Fallback to original ID
 
     // Fetch athlete stats using the new access token
     const response = await fetch(
-      `https://www.strava.com/api/v3/athletes/46396287/stats?access_token=${reAuthJson.access_token}`
+      `https://www.strava.com/api/v3/athletes/${athleteId}/stats?access_token=${reAuthJson.access_token}`
     );
 
     if (!response.ok) {

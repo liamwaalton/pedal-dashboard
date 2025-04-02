@@ -13,13 +13,13 @@ interface DailyData {
   date: string;
   formattedDate: string;
   distance: number;
-  time: number;
+  averageSpeed: number;
 }
 
 interface ChartData {
   labels: string[];
   distanceData: number[];
-  timeData: number[];
+  speedData: number[];
 }
 
 const ActivityTrendsChart = () => {
@@ -43,7 +43,7 @@ const ActivityTrendsChart = () => {
         return {
           labels: ['Log in to see your activity data'],
           distanceData: [0],
-          timeData: [0]
+          speedData: [0]
         };
       }
       
@@ -52,7 +52,7 @@ const ActivityTrendsChart = () => {
         return {
           labels: ['No activities found'],
           distanceData: [0],
-          timeData: [0]
+          speedData: [0]
         };
       }
 
@@ -121,12 +121,15 @@ const ActivityTrendsChart = () => {
             date: dateStr,
             formattedDate: formattedDate,
             distance: 0,
-            time: 0
+            averageSpeed: 0
           };
         }
         
         dailyData[dateStr].distance += (activity.distance || 0) / 1000; // meters to km
-        dailyData[dateStr].time += (activity.moving_time || 0) / 3600; // seconds to hours
+        // Calculate average speed for this activity in km/h
+        const activitySpeed = activity.moving_time > 0 ? 
+          ((activity.distance || 0) / 1000) / ((activity.moving_time || 0) / 3600) : 0;
+        dailyData[dateStr].averageSpeed = activitySpeed;
       });
 
       // Fill in missing dates/hours for a complete timeline
@@ -144,7 +147,7 @@ const ActivityTrendsChart = () => {
               date: hourStr,
               formattedDate: date.toLocaleTimeString('en-US', { hour: 'numeric' }),
               distance: 0,
-              time: 0
+              averageSpeed: 0
             };
           }
         }
@@ -167,7 +170,7 @@ const ActivityTrendsChart = () => {
               date: dateStr,
               formattedDate: date.toLocaleDateString('en-US', { day: 'numeric' }),
               distance: 0,
-              time: 0
+              averageSpeed: 0
             };
           }
         }
@@ -188,7 +191,7 @@ const ActivityTrendsChart = () => {
               date: dateStr,
               formattedDate: date.toLocaleDateString('en-US', { month: 'short' }),
               distance: 0,
-              time: 0
+              averageSpeed: 0
             };
           }
         }
@@ -199,17 +202,17 @@ const ActivityTrendsChart = () => {
       const sortedData = Object.values(dailyData).sort((a, b) => a.date.localeCompare(b.date));
       const dates = sortedData.map((d: DailyData) => d.formattedDate);
       const distances = sortedData.map((d: DailyData) => parseFloat(d.distance.toFixed(1)));
-      const times = sortedData.map((d: DailyData) => parseFloat(d.time.toFixed(1)));
+      const speeds = sortedData.map((d: DailyData) => parseFloat(d.averageSpeed.toFixed(1)));
 
       return {
         labels: dates.length > 0 ? dates : ['No data'],
         distanceData: distances.length > 0 ? distances : [0],
-        timeData: times.length > 0 ? times : [0]
+        speedData: speeds.length > 0 ? speeds : [0]
       };
     };
 
     // Get data
-    const { labels, distanceData, timeData } = prepareChartData();
+    const { labels, distanceData, speedData } = prepareChartData();
 
     // Destroy existing chart if it exists
     if (chartInstance.current) {
@@ -241,8 +244,8 @@ const ActivityTrendsChart = () => {
               borderWidth: 2.5,
             },
             {
-              label: 'Time',
-              data: timeData,
+              label: 'Speed',
+              data: speedData,
               borderColor: '#3B82F6', // Updated blue
               backgroundColor: 'rgba(59, 130, 246, 0.15)',
               fill: true,
@@ -288,7 +291,7 @@ const ActivityTrendsChart = () => {
                   if (context.parsed.y !== null) {
                     label += context.dataset.yAxisID === 'y' 
                       ? context.parsed.y.toFixed(1) + ' km'
-                      : context.parsed.y.toFixed(1) + ' hrs';
+                      : context.parsed.y.toFixed(1) + ' km/h';
                   }
                   return label;
                 }
@@ -338,7 +341,7 @@ const ActivityTrendsChart = () => {
                   size: 10,
                 },
                 callback: function(value) {
-                  return value + ' h';
+                  return value + ' km/h';
                 }
               }
             }

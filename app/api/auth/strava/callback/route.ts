@@ -39,6 +39,8 @@ export async function GET(request: NextRequest) {
       value: tokenData.access_token,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      // Only use sameSite in production to avoid development issues
+      ...(process.env.NODE_ENV === 'production' ? { sameSite: 'lax' } : {}),
       maxAge: tokenData.expires_in,
       path: '/',
     });
@@ -48,6 +50,8 @@ export async function GET(request: NextRequest) {
       value: tokenData.refresh_token,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      // Only use sameSite in production to avoid development issues
+      ...(process.env.NODE_ENV === 'production' ? { sameSite: 'lax' } : {}),
       // Long expiration for refresh token
       maxAge: 60 * 60 * 24 * 30, // 30 days
       path: '/',
@@ -62,14 +66,23 @@ export async function GET(request: NextRequest) {
         lastname: tokenData.athlete.lastname,
         profile: tokenData.athlete.profile,
       }),
+      // Not httpOnly so the client can access it
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
+      // Only use sameSite in production to avoid development issues
+      ...(process.env.NODE_ENV === 'production' ? { sameSite: 'lax' } : {}),
       maxAge: tokenData.expires_in,
       path: '/',
     });
 
     return response;
   } catch (error) {
-    console.error('Error exchanging code for token:', error);
+    // Only log details in development
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Error exchanging code for token:', error);
+    } else {
+      console.error('Authentication error occurred');
+    }
     return NextResponse.redirect(new URL(`/?error=token_exchange_failed`, request.url));
   }
 } 

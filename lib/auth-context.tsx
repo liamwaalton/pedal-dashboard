@@ -40,9 +40,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data = await response.json();
         
         setIsLoggedIn(data.isLoggedIn);
-        setAthlete(data.athlete);
+        
+        // Only set athlete data if it exists
+        if (data.athlete) {
+          // Only log in development
+          if (process.env.NODE_ENV !== 'production') {
+            console.log('Setting athlete data:', data.athlete);
+          }
+          setAthlete(data.athlete);
+        } else {
+          // Only log in development
+          if (process.env.NODE_ENV !== 'production') {
+            console.log('No athlete data received from API');
+          }
+          // Keep athlete as null
+        }
       } catch (error) {
-        console.error('Error checking auth status:', error);
+        console.error('Error checking auth status:', 
+          process.env.NODE_ENV === 'production' 
+            ? 'Authentication failed' 
+            : error
+        );
         setIsLoggedIn(false);
         setAthlete(null);
       } finally {
@@ -55,15 +73,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Function to initiate Strava OAuth flow
   const login = () => {
-    // Hardcoded client ID from .env.local
+    // Get client ID from .env.local
     const clientId = process.env.NEXT_PUBLIC_STRAVA_CLIENT_ID;
-    
-    // Log the client ID to help with debugging
-    console.log('Using Strava Client ID:', clientId);
     
     // If client ID is undefined or empty, use a fallback approach
     if (!clientId) {
-      console.error('NEXT_PUBLIC_STRAVA_CLIENT_ID is not defined in environment variables');
+      console.error('Strava client configuration missing');
       // Try to get the client ID from the server
       window.location.href = '/api/auth/strava/login';
       return;

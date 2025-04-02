@@ -38,6 +38,8 @@ export async function GET(request: NextRequest) {
       value: tokenData.access_token,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      // Only use sameSite in production to avoid development issues
+      ...(process.env.NODE_ENV === 'production' ? { sameSite: 'lax' } : {}),
       maxAge: tokenData.expires_in,
       path: '/',
     });
@@ -47,6 +49,8 @@ export async function GET(request: NextRequest) {
       value: tokenData.refresh_token,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      // Only use sameSite in production to avoid development issues
+      ...(process.env.NODE_ENV === 'production' ? { sameSite: 'lax' } : {}),
       // Long expiration for refresh token
       maxAge: 60 * 60 * 24 * 30, // 30 days
       path: '/',
