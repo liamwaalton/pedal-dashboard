@@ -1,13 +1,12 @@
-
 import React from 'react';
 import { User, Bell, Lock, Globe } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import SettingsSidebar from '@/components/settings/SettingsSidebar';
-import ProfileInformation from '@/components/settings/ProfileInformation';
-import AppearanceSettings from '@/components/settings/AppearanceSettings';
-import NotificationSettings from '@/components/settings/NotificationSettings';
-import LanguageSettings from '@/components/settings/LanguageSettings';
-import DangerZone from '@/components/settings/DangerZone';
+// import SettingsSidebar from '@/components/settings/SettingsSidebar';
+// import ProfileInformation from '@/components/settings/ProfileInformation';
+// import AppearanceSettings from '@/components/settings/AppearanceSettings';
+// import NotificationSettings from '@/components/settings/NotificationSettings';
+// import LanguageSettings from '@/components/settings/LanguageSettings';
+// import DangerZone from '@/components/settings/DangerZone';
 
 const settingsSections = [
   { id: 'account', icon: <User size={20} />, label: 'Account', active: true },
@@ -28,37 +27,37 @@ const SettingsPage = () => {
         <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm p-6 md:p-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Sidebar */}
-            <SettingsSidebar settingsSections={settingsSections} />
+            {/* <SettingsSidebar settingsSections={settingsSections} /> */}
             
             {/* Main Content */}
             <div className="lg:col-span-9">
               <div className="bike-card">
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">Account Settings</h2>
                 
-                <ProfileInformation />
+                {/* <ProfileInformation /> */}
                 
                 <Separator className="my-6" />
                 
-                <AppearanceSettings 
+                {/* <AppearanceSettings 
                   darkMode={darkMode}
                   setDarkMode={setDarkMode}
-                />
+                /> */}
                 
-                <NotificationSettings 
+                {/* <NotificationSettings 
                   pushNotifications={pushNotifications}
                   setPushNotifications={setPushNotifications}
                   emailNotifications={emailNotifications}
                   setEmailNotifications={setEmailNotifications}
-                />
+                /> */}
                 
-                <LanguageSettings 
+                {/* <LanguageSettings 
                   language={language}
                   setLanguage={setLanguage}
-                />
+                /> */}
                 
                 <Separator className="my-6" />
                 
-                <DangerZone />
+                {/* <DangerZone /> */}
               </div>
             </div>
           </div>

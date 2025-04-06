@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Home, MessageSquare, Map, Settings } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -11,15 +10,15 @@ import StatisticsCard from '@/components/StatisticsCard';
 import MapCard from '@/components/MapCard';
 import ProfileSection from '@/components/ProfileSection';
 import SupportCard from '@/components/SupportCard';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 
 const Index = () => {
   const [activeNavItem, setActiveNavItem] = useState('home');
-  const navigate = useNavigate();
+  const router = useRouter();
   
   const handleNavigation = (path: string, navItem: string) => {
     setActiveNavItem(navItem);
-    navigate(path);
+    router.push(path);
   };
   
   return (

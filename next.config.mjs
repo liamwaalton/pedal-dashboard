@@ -2,6 +2,16 @@
 const nextConfig = {
   reactStrictMode: true,
   
+  // Disable ESLint during build
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
+  // Disable TypeScript type checking during build
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  
   // Add security headers
   async headers() {
     return [

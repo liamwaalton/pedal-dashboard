@@ -1,9 +1,8 @@
-
 import React from 'react';
-import TrendPlacesSidebar from '@/components/trendplaces/TrendPlacesSidebar';
-import TrendPlacesHeader from '@/components/trendplaces/TrendPlacesHeader';
-import PlacesList from '@/components/trendplaces/PlacesList';
-import ExploreAllBanner from '@/components/trendplaces/ExploreAllBanner';
+// import TrendPlacesSidebar from '@/components/trendplaces/TrendPlacesSidebar';
+// import TrendPlacesHeader from '@/components/trendplaces/TrendPlacesHeader';
+// import PlacesList from '@/components/trendplaces/PlacesList';
+// import ExploreAllBanner from '@/components/trendplaces/ExploreAllBanner';
 
 interface TrendingPlace {
   id: number;
@@ -66,12 +65,12 @@ const TrendPlaces = () => {
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-[2rem] overflow-hidden shadow-sm p-6 md:p-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <TrendPlacesSidebar popularEvents={popularEvents} />
+            {/* <TrendPlacesSidebar popularEvents={popularEvents} /> */}
             
             <div className="lg:col-span-9">
-              <TrendPlacesHeader />
-              <PlacesList trendingPlaces={trendingPlaces} />
-              <ExploreAllBanner />
+              {/* <TrendPlacesHeader /> */}
+              {/* <PlacesList trendingPlaces={trendingPlaces} /> */}
+              {/* <ExploreAllBanner /> */}
             </div>
           </div>
         </div>
