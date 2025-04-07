@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { useActivity } from '@/lib/activity-context';
 import { useAuth } from '@/lib/auth-context';
-import { Clock, Map, TrendingUp, Activity, LogIn, Award, Flame } from 'lucide-react';
+import { Clock, Map, TrendingUp, Activity, LogIn, Award, Flame, AlertTriangle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { formatElevation } from '@/lib/utils';
@@ -12,7 +12,7 @@ import { formatElevation } from '@/lib/utils';
 const KM_TO_MILES = 0.621371;
 
 export default function ActivityStats() {
-  const { activities, isLoading, timePeriod } = useActivity();
+  const { activities, isLoading, timePeriod, error } = useActivity();
   const { isLoggedIn } = useAuth();
 
   // Memoize the filtered stats calculation
@@ -90,6 +90,18 @@ export default function ActivityStats() {
             ))}
           </div>
         </div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="activity-statistics-card p-4 rounded-lg border border-yellow-300 bg-yellow-50">
+        <div className="flex items-center gap-2 text-yellow-700">
+          <AlertTriangle className="h-5 w-5" />
+          <span className="font-medium text-sm">Error loading data:</span>
+        </div>
+        <p className="text-sm text-yellow-600 mt-1 ml-7">{error}</p>
       </div>
     );
   }

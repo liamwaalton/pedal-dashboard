@@ -1,11 +1,16 @@
-
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../App';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { useAuth } from '@/lib/auth-context';
+import { useToast } from '@/components/ui/use-toast';
 import { LogIn } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface RequireAuthProps {
   children: React.ReactNode;
@@ -13,19 +18,8 @@ interface RequireAuthProps {
 
 const RequireAuth = ({ children }: RequireAuthProps) => {
   const [showDialog, setShowDialog] = React.useState(true);
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const { isLoggedIn, login } = useAuth();
   const { toast } = useToast();
-
-  const handleLoginWithStrava = () => {
-    // In a real implementation, this would redirect to Strava OAuth
-    // For now, we'll just toggle the state for demonstration
-    setIsLoggedIn(true);
-    setShowDialog(false);
-    toast({
-      title: "Successfully logged in",
-      description: "You've been logged in with Strava",
-    });
-  };
 
   // Always render the children, but show the dialog if not logged in
   return (
@@ -53,7 +47,7 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
             </div>
             <DialogFooter className="sm:justify-center">
               <Button 
-                onClick={handleLoginWithStrava} 
+                onClick={login}
                 className="bg-[#FC4C02] hover:bg-[#e64500] text-white rounded-full gap-2 w-full md:w-auto"
               >
                 <LogIn size={18} />
