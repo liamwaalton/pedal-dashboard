@@ -76,13 +76,19 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
   const [isStravaDown, setIsStravaDown] = useState(false);
   const [goal, setGoal] = useState<Goal | null>(null);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('30days');
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
   
   // Add cache keys for local storage
   const CACHE_KEYS = {
     ACTIVITIES: 'strava-activities-cache',
     STATS: 'strava-stats-cache',
-    CACHE_TIME: 'strava-cache-timestamp'
+    CACHE_TIME: 'strava-cache-timestamp',
+    LAST_FETCH: 'strava-last-fetch-time'
   };
+
+  // Rate limiting constants
+  const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes in milliseconds
+  const CACHE_MAX_AGE = 30 * 60 * 1000; // 30 minutes in milliseconds
 
   // Load goal from localStorage on initial render
   useEffect(() => {
@@ -105,7 +111,13 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
       }
     }
     
-    // Try loading cached activities and stats
+    // Load last fetch time
+    const savedLastFetch = localStorage.getItem(CACHE_KEYS.LAST_FETCH);
+    if (savedLastFetch) {
+      setLastFetchTime(parseInt(savedLastFetch, 10));
+    }
+    
+    // Try loading cached data
     tryLoadingCachedData();
   }, []);
   
@@ -121,6 +133,27 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('cycling-time-period', JSON.stringify(timePeriod));
   }, [timePeriod]);
   
+  // Function to check if we should fetch new data
+  const shouldFetchNewData = (): boolean => {
+    const now = Date.now();
+    
+    // Check rate limiting
+    if (now - lastFetchTime < RATE_LIMIT_WINDOW) {
+      return false;
+    }
+    
+    // Check if cache is still fresh
+    const cacheTimestamp = localStorage.getItem(CACHE_KEYS.CACHE_TIME);
+    if (cacheTimestamp) {
+      const cacheAge = now - parseInt(cacheTimestamp, 10);
+      if (cacheAge < CACHE_MAX_AGE) {
+        return false;
+      }
+    }
+    
+    return true;
+  };
+  
   // Function to load data from cache
   const tryLoadingCachedData = () => {
     try {
@@ -132,17 +165,10 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
       if (cachedActivities && cachedStats && cacheTimestamp) {
         const parsedActivities = JSON.parse(cachedActivities);
         const parsedStats = JSON.parse(cachedStats);
-        const timestamp = parseInt(cacheTimestamp, 10);
         
-        // Only use cache if it's less than 24 hours old
-        const cacheAge = Date.now() - timestamp;
-        const CACHE_MAX_AGE = 24 * 60 * 60 * 1000; // 24 hours
-        
-        if (cacheAge < CACHE_MAX_AGE) {
-          setActivities(parsedActivities);
-          setStats(parsedStats);
-          return true;
-        }
+        setActivities(parsedActivities);
+        setStats(parsedStats);
+        return true;
       }
     } catch (err) {
       console.error('Error loading cached data:', err);
@@ -161,8 +187,14 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Updated loadActivities function
+  // Updated loadActivities function with rate limiting
   const loadActivities = async (period?: TimePeriod) => {
+    // Return cached data if we shouldn't fetch new data
+    if (!shouldFetchNewData()) {
+      console.log('Using cached data due to rate limiting');
+      return;
+    }
+    
     // Only prevent loading if already in progress
     if (isLoading) return;
     
@@ -171,6 +203,11 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
     setIsStravaDown(false);
     
     try {
+      // Update last fetch time
+      const now = Date.now();
+      setLastFetchTime(now);
+      localStorage.setItem(CACHE_KEYS.LAST_FETCH, now.toString());
+      
       // Use the provided period or the current timePeriod
       const periodValue = period || timePeriod;
       let response = await fetch(`/api/strava/activities?period=${periodValue}`);
@@ -187,21 +224,24 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
         }
       }
       
+      // Handle rate limiting
+      if (response.status === 429) {
+        console.log('Rate limit hit, using cached data');
+        tryLoadingCachedData();
+        setError('Rate limit exceeded. Showing cached data.');
+        return;
+      }
+      
       const data = await response.json();
       
       if (!response.ok) {
-        // Check if Strava is down
         if (response.status === 503 && data.isStravaDown) {
           setIsStravaDown(true);
-          
-          // Try to load from cache if Strava is down
           const hasCachedData = tryLoadingCachedData();
           
           if (hasCachedData) {
-            // We have cached data, so show a warning but don't block the UI
             setError(`${data.error} Showing cached data from your last session.`);
           } else {
-            // No cached data, show the full error
             throw new Error(data.error || 'Strava service is unavailable');
           }
         } else if (response.status === 401) {

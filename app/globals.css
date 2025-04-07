@@ -4,7 +4,7 @@
  
 @layer base {
   :root {
-    --background: 210 50% 98%;
+    --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
  
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
  
     --secondary: 210 40% 96.1%;
@@ -30,9 +30,9 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 221.2 83.2% 53.3%;
  
-    --radius: 1rem;
+    --radius: 0.5rem;
 
     --bike-orange: 24 95% 58%;
     --bike-green: 142 72% 48%;
@@ -50,7 +50,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
  
-    --primary: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 222.2 47.4% 11.2%;
  
     --secondary: 217.2 32.6% 17.5%;
@@ -67,7 +67,7 @@
  
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 224.3 76.3% 48%;
   }
 }
  
@@ -78,14 +78,22 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        rgb(var(--background-end-rgb))
+      )
+      rgb(var(--background-start-rgb));
   }
 }
 
 @layer components {
   /* Modern glass card styles */
   .bike-card {
-    @apply bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden relative backdrop-blur-sm;
+    @apply rounded-xl border shadow-sm overflow-hidden relative backdrop-blur-sm;
     background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(243, 244, 246, 0.1);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   }
 
@@ -102,6 +110,23 @@
     border-color: rgba(255, 204, 145, 0.5);
   }
 
+  /* Dark mode card styles */
+  .dark .bike-card {
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(55, 65, 81, 0.5);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .dark .bike-card-gradient-blue {
+    background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+    border-color: rgba(59, 130, 246, 0.2);
+  }
+
+  .dark .bike-card-gradient-orange {
+    background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+    border-color: rgba(249, 115, 22, 0.2);
+  }
+
   /* Dashboard nav item styles */
   .dashboard-nav-item {
     @apply flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 transition-all duration-200;
@@ -112,8 +137,22 @@
   }
   
   .dashboard-nav-item.active {
-    @apply bg-primary text-primary-foreground font-medium;
+    @apply text-primary-foreground font-medium;
     background: linear-gradient(90deg, hsl(var(--bike-blue)) 0%, hsl(var(--bike-blue)/0.85) 100%);
+  }
+  
+  /* Dashboard nav item dark mode */
+  .dark .dashboard-nav-item {
+    @apply text-gray-400;
+  }
+  
+  .dark .dashboard-nav-item:hover {
+    @apply bg-gray-800 text-gray-200;
+  }
+  
+  .dark .dashboard-nav-item.active {
+    background: linear-gradient(90deg, rgba(37, 99, 235, 1) 0%, rgba(37, 99, 235, 0.85) 100%);
+    @apply text-white;
   }
   
   /* Button styles */
@@ -132,11 +171,17 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 rounded-full;
+    @apply rounded-full;
+    background-color: rgb(209, 213, 219);
   }
   
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-400;
+  /* Scrollbar dark mode */
+  .dark ::-webkit-scrollbar-thumb {
+    background-color: rgb(55, 65, 81);
+  }
+  
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(75, 85, 99);
   }
 }
 
@@ -153,4 +198,145 @@
 
 .animate-fade-in-up {
   animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Dark mode overrides */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background-color: rgb(17, 24, 39);
+  color: rgb(243, 244, 246);
+}
+
+/* Navigation sidebar dark mode */
+.dark .sidebar {
+  background-color: rgb(17, 24, 39);
+  border-color: rgb(31, 41, 55);
+}
+
+/* Search bar dark mode */
+.dark .search-bar {
+  background-color: rgb(31, 41, 55);
+  border-color: rgb(55, 65, 81);
+  color: rgb(243, 244, 246);
+}
+
+.dark .search-bar::placeholder {
+  color: rgb(156, 163, 175);
+}
+
+/* Dashboard nav items dark mode */
+.dark .dashboard-nav-item {
+  color: rgb(156, 163, 175);
+}
+
+.dark .dashboard-nav-item:hover {
+  background-color: rgb(31, 41, 55);
+  color: rgb(229, 231, 235);
+}
+
+.dark .dashboard-nav-item.active {
+  background: linear-gradient(90deg, rgba(37, 99, 235, 1) 0%, rgba(37, 99, 235, 0.85) 100%);
+  color: rgb(255, 255, 255);
+}
+
+/* Popular routes section dark mode */
+.dark .popular-routes {
+  background-color: rgb(31, 41, 55);
+  border-color: rgb(55, 65, 81);
+}
+
+.dark .popular-routes-header {
+  color: rgb(243, 244, 246);
+}
+
+/* Your Goal card dark mode */
+.dark .goal-card {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+  border-color: rgba(74, 222, 128, 0.2);
+}
+
+/* Activity Statistics dark mode */
+.dark .activity-statistics-card {
+  background-color: rgb(31, 41, 55);
+  border-color: rgb(55, 65, 81);
+}
+
+.dark .stats-item {
+  background-color: rgb(55, 65, 81);
+}
+
+/* Riding trends graph dark mode */
+.dark .riding-trends-graph {
+  background-color: rgb(31, 41, 55);
+  border-color: rgb(55, 65, 81);
+}
+
+/* Coming Soon card dark mode */
+.dark .coming-soon-card {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.9) 0%, rgba(59, 130, 246, 0.9) 100%);
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+/* Athlete profile section dark mode */
+.dark .athlete-profile {
+  background-color: rgb(31, 41, 55);
+  border-color: rgb(55, 65, 81);
+}
+
+/* Stats summary dark mode */
+.dark .stats-summary {
+  background-color: rgb(31, 41, 55);
+  border-color: rgb(55, 65, 81);
+}
+
+/* Form inputs dark mode */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="search"],
+.dark textarea,
+.dark select {
+  background-color: rgb(31, 41, 55);
+  border-color: rgb(55, 65, 81);
+  color: rgb(243, 244, 246);
+}
+
+.dark input[type="text"]:disabled,
+.dark input[type="email"]:disabled,
+.dark input[type="search"]:disabled {
+  background-color: rgb(17, 24, 39);
+  color: rgb(156, 163, 175);
+}
+
+/* Bike cards dark mode */
+.dark .bike-card {
+  background: rgba(31, 41, 55, 0.8);
+  border-color: rgba(55, 65, 81, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.dark .bike-card-gradient-blue {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.dark .bike-card-gradient-orange {
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+  border-color: rgba(249, 115, 22, 0.2);
+}
+
+/* Loading states dark mode */
+.dark .animate-pulse [class*='bg-'] {
+  background-color: rgb(55, 65, 81);
+}
+
+/* Scrollbar dark mode */
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgb(55, 65, 81);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(75, 85, 99);
 } 

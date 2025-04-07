@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from '@/lib/auth-context';
 import { ActivityProvider } from '@/lib/activity-context';
+import { ThemeProvider } from '@/lib/theme-context';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -21,17 +22,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <AuthProvider>
-          <ActivityProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              {children}
-            </TooltipProvider>
-          </ActivityProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <ActivityProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                {children}
+              </TooltipProvider>
+            </ActivityProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

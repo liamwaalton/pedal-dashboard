@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useActivity } from '@/lib/activity-context';
 import { useAuth } from '@/lib/auth-context';
 import { Clock, Map, TrendingUp, Activity, LogIn, Award, Flame } from 'lucide-react';
@@ -8,20 +8,72 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { formatElevation } from '@/lib/utils';
 
-const ActivityStats = () => {
-  const { stats, isLoading, error, isStravaDown } = useActivity();
+// Constants for conversion
+const KM_TO_MILES = 0.621371;
+
+export default function ActivityStats() {
+  const { activities, isLoading, timePeriod } = useActivity();
   const { isLoggedIn } = useAuth();
+
+  // Memoize the filtered stats calculation
+  const stats = useMemo(() => {
+    if (!activities || activities.length === 0) {
+      return {
+        totalDistance: 0,
+        averageSpeed: 0,
+        totalTime: 0
+      };
+    }
+
+    // Calculate start date based on time period
+    const now = new Date();
+    let startDate: Date;
+    
+    switch (timePeriod) {
+      case 'today':
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case 'week':
+        startDate = new Date(now);
+        startDate.setDate(now.getDate() - 7);
+        break;
+      case 'month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      case 'year':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        break;
+      case '30days':
+      default:
+        startDate = new Date(now);
+        startDate.setDate(now.getDate() - 30);
+        break;
+    }
+
+    // Filter activities by time period and type
+    const filteredActivities = activities
+      .filter(activity => activity.type === 'Ride')
+      .filter(activity => new Date(activity.start_date) >= startDate);
+
+    // Calculate totals
+    const totalDistance = filteredActivities.reduce((acc, curr) => acc + (curr.distance || 0), 0);
+    const totalTime = filteredActivities.reduce((acc, curr) => acc + (curr.moving_time || 0), 0);
+    
+    // Calculate true average speed
+    const averageSpeed = totalTime > 0 ? (totalDistance / totalTime) * 3.6 : 0; // Convert to km/h
+
+    return {
+      totalDistance: totalDistance / 1000, // Convert to km
+      averageSpeed,
+      totalTime
+    };
+  }, [activities, timePeriod]);
 
   if (!isLoggedIn) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-        <div className="flex justify-between mb-4">
-          <h3 className="font-medium text-gray-900">Activity Statistics</h3>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-16 w-full rounded-lg" />
-          ))}
+      <div className="activity-statistics-card p-4 rounded-lg">
+        <div className="text-muted-foreground text-sm">
+          Please log in to view your activity statistics
         </div>
       </div>
     );
@@ -29,123 +81,54 @@ const ActivityStats = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-        <div className="flex justify-between mb-4">
-          <h3 className="font-medium text-gray-900">Activity Statistics</h3>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-16 w-full rounded-lg" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (isStravaDown) {
-    return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-        <div className="flex flex-col items-center text-center space-y-4">
-          <div className="flex justify-center mb-2">
-            <div className="bg-red-100 rounded-xl p-4">
-              <svg viewBox="0 0 40 40" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
-                <path d="M23.5,19.3l-3-6.6l-3,6.6h6.1M25.7,24.4l-3-6.6h-7.5l-3,6.6h4.2l1.7-3.8h6.1l1.7,3.8h4.2" fill="#FC4C02" />
-              </svg>
-            </div>
+      <div className="activity-statistics-card p-4 rounded-lg">
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 w-1/4 bg-muted rounded"></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-20 bg-muted rounded"></div>
+            ))}
           </div>
-          <h3 className="text-xl font-semibold text-gray-900">Strava API Service Unavailable</h3>
-          <p className="text-gray-600 max-w-md">The Strava API appears to be temporarily unavailable. Please check back later.</p>
         </div>
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-        <div className="flex flex-col items-center text-center space-y-4">
-          <h3 className="text-xl font-semibold text-gray-900">Error Loading Data</h3>
-          <p className="text-gray-600 max-w-md">{error}</p>
-        </div>
-      </div>
-    );
-  }
+  // Format time display
+  const hours = Math.floor(stats.totalTime / 3600);
+  const minutes = Math.floor((stats.totalTime % 3600) / 60);
+  const timeDisplay = `${hours}h ${minutes}m`;
 
-  if (!stats) {
-    return (
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-        <div className="flex flex-col items-center text-center space-y-4">
-          <h3 className="text-xl font-semibold text-gray-900">No Data Available</h3>
-          <p className="text-gray-600 max-w-md">
-            {useActivity().timePeriod === 'today' 
-              ? "Get out for a ride!" 
-              : "There seems to be no activity data available at the moment."}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Format values for display
-  const formatDistance = (meters: number) => {
-    const kilometers = meters / 1000;
-    return `${kilometers.toFixed(1)} km`;
-  };
-
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    return `${hours} hrs`;
-  };
+  // Convert to imperial units
+  const distanceMiles = stats.totalDistance * KM_TO_MILES;
+  const speedMph = stats.averageSpeed * KM_TO_MILES;
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
-      <div className="flex justify-between mb-4">
-        <h3 className="font-medium text-gray-900">Activity Statistics</h3>
-        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Last 30 Days</span>
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="bg-blue-100 p-1.5 rounded-md">
-              <Map className="h-4 w-4 text-blue-600" />
-            </div>
-            <span className="text-xs text-gray-500">Distance</span>
+    <div className="activity-statistics-card p-4 rounded-lg">
+      <h3 className="text-lg font-semibold mb-4">Activity Statistics</h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2 mb-1">
+            <Map className="h-5 w-5 text-gray-500" />
+            <div className="text-gray-500 text-sm">Total Distance</div>
           </div>
-          <div className="font-semibold text-lg text-gray-800">{stats.totalDistanceKm} km</div>
+          <div className="text-2xl font-bold leading-tight">{distanceMiles.toFixed(1)} mi</div>
         </div>
-        
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="bg-amber-100 p-1.5 rounded-md">
-              <Clock className="h-4 w-4 text-amber-600" />
-            </div>
-            <span className="text-xs text-gray-500">Time</span>
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingUp className="h-5 w-5 text-gray-500" />
+            <div className="text-gray-500 text-sm">Average Speed</div>
           </div>
-          <div className="font-semibold text-lg text-gray-800">{stats.totalMovingTimeHours} hrs</div>
+          <div className="text-2xl font-bold leading-tight">{speedMph.toFixed(1)} mph</div>
         </div>
-        
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="bg-green-100 p-1.5 rounded-md">
-              <Activity className="h-4 w-4 text-green-600" />
-            </div>
-            <span className="text-xs text-gray-500">Activities</span>
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2 mb-1">
+            <Clock className="h-5 w-5 text-gray-500" />
+            <div className="text-gray-500 text-sm">Total Time</div>
           </div>
-          <div className="font-semibold text-lg text-gray-800 text-center">{stats.totalActivities}</div>
-        </div>
-        
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="bg-purple-100 p-1.5 rounded-md">
-              <TrendingUp className="h-4 w-4 text-purple-600" />
-            </div>
-            <span className="text-xs text-gray-500">Elevation</span>
-          </div>
-          <div className="font-semibold text-lg text-gray-800 break-words">{formatElevation(stats.totalElevationGain || 0)}</div>
+          <div className="text-2xl font-bold leading-tight">{timeDisplay}</div>
         </div>
       </div>
     </div>
   );
-};
-
-export default ActivityStats; 
+} 

@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ChevronRight, Sparkles, Brain, Cpu } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Sparkles, Brain } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const CommunityBanner = () => {
@@ -36,18 +35,9 @@ const CommunityBanner = () => {
                 <h2 className="text-white text-2xl sm:text-3xl font-bold mb-2">
                   AI-Powered Cycling Platform
                 </h2>
-                <p className="text-white/90 text-base mb-4 max-w-xl">
-                  Experience the future of cycling with AI-driven personalized training plans, route recommendations, and performance insights.
+                <p className="text-white/90 text-base">
+                  Experience the future of cycling with AI-driven personalized training plans, route recommendations, and performance insights. We're working hard to bring you the best cycling companion.
                 </p>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button className="bg-white border-0 text-purple-600 hover:bg-purple-50 hover:text-purple-700 font-semibold px-4 py-2 rounded-lg text-sm shadow-md">
-                    Join Waitlist
-                    <ChevronRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </motion.div>
               </div>
               
               {/* Illustration - right side */}
