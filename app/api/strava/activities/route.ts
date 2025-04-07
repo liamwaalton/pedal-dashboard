@@ -107,23 +107,23 @@ function filterActivitiesByPeriod(activities: any[], period: string) {
   
   switch (period) {
     case 'today':
-      // Activities from today
+      // Activities from today (midnight to now)
       return activities.filter(activity => {
         const activityDate = new Date(activity.start_date);
         return activityDate >= today;
       });
       
     case 'week':
-      // Activities from the last 7 days
+      // Activities from the last 7 days (including today)
       const weekAgo = new Date(now);
-      weekAgo.setDate(now.getDate() - 7);
+      weekAgo.setDate(now.getDate() - 6); // Include today, so go back 6 days
       return activities.filter(activity => {
         const activityDate = new Date(activity.start_date);
         return activityDate >= weekAgo;
       });
       
     case 'month':
-      // Activities from the current month
+      // Activities from the current month (1st to now)
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       return activities.filter(activity => {
         const activityDate = new Date(activity.start_date);
@@ -131,7 +131,7 @@ function filterActivitiesByPeriod(activities: any[], period: string) {
       });
       
     case 'year':
-      // Activities from the current year
+      // Activities from the current year (Jan 1st to now)
       const startOfYear = new Date(now.getFullYear(), 0, 1);
       return activities.filter(activity => {
         const activityDate = new Date(activity.start_date);
@@ -140,9 +140,9 @@ function filterActivitiesByPeriod(activities: any[], period: string) {
       
     case '30days':
     default:
-      // Activities from the last 30 days (default)
+      // Activities from the last 30 days (including today)
       const thirtyDaysAgo = new Date(now);
-      thirtyDaysAgo.setDate(now.getDate() - 30);
+      thirtyDaysAgo.setDate(now.getDate() - 29); // Include today, so go back 29 days
       return activities.filter(activity => {
         const activityDate = new Date(activity.start_date);
         return activityDate >= thirtyDaysAgo;
