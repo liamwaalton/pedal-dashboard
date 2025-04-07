@@ -6,6 +6,8 @@ import { LogIn, LogOut, AlertCircle, User, RefreshCw, AreaChart, Settings, Flame
 import { useAuth } from '@/lib/auth-context';
 import { useActivity } from '@/lib/activity-context';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { UserIcon } from 'lucide-react';
 
 interface ProfileSectionProps {
   name?: string;
@@ -18,6 +20,8 @@ const ProfileSection = ({ name, email }: ProfileSectionProps) => {
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Check for error parameters in the URL
   useEffect(() => {
