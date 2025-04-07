@@ -33,8 +33,22 @@ const ActivityTrendsChart = () => {
   const { isLoggedIn } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(false);
 
+  // Initialize Chart.js on mount
+  useEffect(() => {
+    Chart.register(...registerables);
+    setMounted(true);
+    
+    return () => {
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
+    };
+  }, []);
+
   // Check dark mode on mount and when theme changes
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const checkDarkMode = () => {
       setIsDarkMode(document.documentElement.classList.contains('dark'));
     };
@@ -59,10 +73,6 @@ const ActivityTrendsChart = () => {
 
     // Cleanup
     return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    setMounted(true);
   }, []);
 
   // Memoize chart data preparation
@@ -192,120 +202,126 @@ const ActivityTrendsChart = () => {
 
   // Update chart when data or theme changes
   useEffect(() => {
-    if (!mounted || !chartRef.current) return;
+    if (!mounted || !chartRef.current || typeof window === 'undefined') return;
 
-    // Get data
-    const { labels, distanceData, speedData } = prepareChartData;
+    try {
+      // Get data
+      const { labels, distanceData, speedData } = prepareChartData;
 
-    // Destroy existing chart if it exists
-    if (chartInstance.current) {
-      chartInstance.current.destroy();
-    }
+      // Get the canvas context
+      const ctx = chartRef.current.getContext('2d');
+      if (!ctx) return;
 
-    const ctx = chartRef.current.getContext('2d');
-    if (!ctx) return;
+      // Destroy existing chart if it exists
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
 
-    chartInstance.current = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Distance',
-            data: distanceData,
-            borderColor: isDarkMode ? 'rgba(249, 115, 22, 0.8)' : 'rgba(249, 115, 22, 0.8)',
-            backgroundColor: isDarkMode ? 'rgba(249, 115, 22, 0.1)' : 'rgba(249, 115, 22, 0.1)',
-            yAxisID: 'y',
-            fill: true,
-            tension: 0.4,
-            borderWidth: 2,
-          },
-          {
-            label: 'Speed',
-            data: speedData,
-            borderColor: isDarkMode ? 'rgba(59, 130, 246, 0.8)' : 'rgba(59, 130, 246, 0.8)',
-            backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-            yAxisID: 'y1',
-            fill: true,
-            tension: 0.4,
-            borderWidth: 2,
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          mode: 'index',
-          intersect: false,
+      // Create new chart
+      chartInstance.current = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Distance',
+              data: distanceData,
+              borderColor: isDarkMode ? 'rgba(249, 115, 22, 0.8)' : 'rgba(249, 115, 22, 0.8)',
+              backgroundColor: isDarkMode ? 'rgba(249, 115, 22, 0.1)' : 'rgba(249, 115, 22, 0.1)',
+              yAxisID: 'y',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2,
+            },
+            {
+              label: 'Speed',
+              data: speedData,
+              borderColor: isDarkMode ? 'rgba(59, 130, 246, 0.8)' : 'rgba(59, 130, 246, 0.8)',
+              backgroundColor: isDarkMode ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+              yAxisID: 'y1',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2,
+            }
+          ]
         },
-        plugins: {
-          legend: {
-            display: false,
-          },
-          tooltip: {
-            enabled: true,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
             mode: 'index',
             intersect: false,
-            backgroundColor: isDarkMode ? 'rgba(17, 24, 39, 0.8)' : 'rgba(255, 255, 255, 0.8)',
-            titleColor: isDarkMode ? '#fff' : '#000',
-            bodyColor: isDarkMode ? '#fff' : '#000',
-            borderColor: isDarkMode ? 'rgba(55, 65, 81, 0.2)' : 'rgba(226, 232, 240, 0.2)',
-            borderWidth: 1,
-            padding: 10,
-            cornerRadius: 8,
           },
-        },
-        scales: {
-          x: {
-            grid: {
+          plugins: {
+            legend: {
               display: false,
             },
-            ticks: {
-              color: isDarkMode ? 'rgba(156, 163, 175, 0.8)' : 'rgba(100, 116, 139, 0.8)',
-              font: {
-                size: 10,
-              },
-              maxRotation: 0,
+            tooltip: {
+              enabled: true,
+              mode: 'index',
+              intersect: false,
+              backgroundColor: isDarkMode ? 'rgba(17, 24, 39, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+              titleColor: isDarkMode ? '#fff' : '#000',
+              bodyColor: isDarkMode ? '#fff' : '#000',
+              borderColor: isDarkMode ? 'rgba(55, 65, 81, 0.2)' : 'rgba(226, 232, 240, 0.2)',
+              borderWidth: 1,
+              padding: 10,
+              cornerRadius: 8,
             },
           },
-          y: {
-            type: 'linear',
-            display: true,
-            position: 'left',
-            grid: {
-              color: isDarkMode ? 'rgba(55, 65, 81, 0.2)' : 'rgba(203, 213, 225, 0.3)',
-            },
-            ticks: {
-              color: isDarkMode ? 'rgba(156, 163, 175, 0.8)' : 'rgba(100, 116, 139, 0.8)',
-              font: {
-                size: 10,
+          scales: {
+            x: {
+              grid: {
+                display: false,
               },
-              callback: function(value) {
-                return value + ' km';
+              ticks: {
+                color: isDarkMode ? 'rgba(156, 163, 175, 0.8)' : 'rgba(100, 116, 139, 0.8)',
+                font: {
+                  size: 10,
+                },
+                maxRotation: 0,
+              },
+            },
+            y: {
+              type: 'linear',
+              display: true,
+              position: 'left',
+              grid: {
+                color: isDarkMode ? 'rgba(55, 65, 81, 0.2)' : 'rgba(203, 213, 225, 0.3)',
+              },
+              ticks: {
+                color: isDarkMode ? 'rgba(156, 163, 175, 0.8)' : 'rgba(100, 116, 139, 0.8)',
+                font: {
+                  size: 10,
+                },
+                callback: function(value) {
+                  return value + ' mi';
+                }
               }
-            }
-          },
-          y1: {
-            type: 'linear',
-            display: true,
-            position: 'right',
-            grid: {
-              display: false,
             },
-            ticks: {
-              color: isDarkMode ? 'rgba(156, 163, 175, 0.8)' : 'rgba(100, 116, 139, 0.8)',
-              font: {
-                size: 10,
+            y1: {
+              type: 'linear',
+              display: true,
+              position: 'right',
+              grid: {
+                display: false,
               },
-              callback: function(value) {
-                return value + ' km/h';
+              ticks: {
+                color: isDarkMode ? 'rgba(156, 163, 175, 0.8)' : 'rgba(100, 116, 139, 0.8)',
+                font: {
+                  size: 10,
+                },
+                callback: function(value) {
+                  return value + ' mph';
+                }
               }
             }
           }
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.error('Error creating chart:', error);
+    }
 
     // Cleanup function
     return () => {
@@ -313,7 +329,7 @@ const ActivityTrendsChart = () => {
         chartInstance.current.destroy();
       }
     };
-  }, [mounted, prepareChartData, isDarkMode]); // Only update when these dependencies change
+  }, [mounted, prepareChartData, isDarkMode]);
 
   if (isLoading) {
     return (
