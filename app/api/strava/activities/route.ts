@@ -13,7 +13,38 @@ export async function GET(request: NextRequest) {
   const period = searchParams.get('period') || '30days';
 
   try {
-    // Fetch activities from Strava API - get more activities for longer time periods
+    // Calculate date range based on period
+    const now = new Date();
+    let before = Math.floor(now.getTime() / 1000); // Current time in seconds
+    let after = 0;
+    
+    switch (period) {
+      case 'today':
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        after = Math.floor(startOfToday.getTime() / 1000);
+        break;
+      case 'week':
+        const weekAgo = new Date(now);
+        weekAgo.setDate(now.getDate() - 6); // Include today, so go back 6 days
+        after = Math.floor(weekAgo.getTime() / 1000);
+        break;
+      case 'month':
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        after = Math.floor(startOfMonth.getTime() / 1000);
+        break;
+      case 'year':
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        after = Math.floor(startOfYear.getTime() / 1000);
+        break;
+      case '30days':
+      default:
+        const thirtyDaysAgo = new Date(now);
+        thirtyDaysAgo.setDate(now.getDate() - 29); // Include today, so go back 29 days
+        after = Math.floor(thirtyDaysAgo.getTime() / 1000);
+        break;
+    }
+
+    // Fetch activities from Strava API with date filtering
     const perPage = period === 'year' ? 200 : period === 'month' ? 100 : 50;
     
     // Add retries for Strava API calls
@@ -23,13 +54,16 @@ export async function GET(request: NextRequest) {
     
     while (retries < maxRetries) {
       try {
-        response = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}`, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
-          },
-          // Add timeout to prevent hanging requests
-          signal: AbortSignal.timeout(10000) // 10 second timeout
-        });
+        response = await fetch(
+          `https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}&after=${after}&before=${before}`, 
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            },
+            // Add timeout to prevent hanging requests
+            signal: AbortSignal.timeout(10000) // 10 second timeout
+          }
+        );
         
         // If successful, break the retry loop
         if (response.ok) break;
@@ -65,7 +99,18 @@ export async function GET(request: NextRequest) {
       if (response.status === 401) {
         return NextResponse.json({ error: 'Authentication expired, please log in again' }, { status: 401 });
       } else if (response.status === 429) {
-        return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+        // Get rate limit headers from Strava
+        const limit = response.headers.get('X-RateLimit-Limit');
+        const usage = response.headers.get('X-RateLimit-Usage');
+        
+        return NextResponse.json({ 
+          error: 'Rate limit exceeded. Please try again later.',
+          rateLimitInfo: {
+            limit,
+            usage,
+            message: `You've hit Strava's API rate limits. Please wait 15 minutes before trying again.`
+          }
+        }, { status: 429 });
       } else if (response.status >= 500) {
         return NextResponse.json({ 
           error: 'Strava service is currently unavailable. We\'ll try to show cached data if available.',
@@ -75,15 +120,12 @@ export async function GET(request: NextRequest) {
       throw new Error(`Strava API error: ${response.statusText}`);
     }
 
-    const allActivities = await response.json();
-    
-    // Filter activities based on the time period
-    const filteredActivities = filterActivitiesByPeriod(allActivities, period);
+    const activities = await response.json();
     
     // Calculate total stats
-    const stats = calculateStats(filteredActivities);
+    const stats = calculateStats(activities);
     
-    return NextResponse.json({ activities: filteredActivities, stats });
+    return NextResponse.json({ activities, stats });
   } catch (error) {
     console.error('Error fetching Strava activities:', error);
     
@@ -97,56 +139,6 @@ export async function GET(request: NextRequest) {
         : 'Failed to fetch activities. Please try again later.',
       isStravaDown: isNetworkError
     }, { status: 503 });
-  }
-}
-
-// Helper function to filter activities by time period
-function filterActivitiesByPeriod(activities: any[], period: string) {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  
-  switch (period) {
-    case 'today':
-      // Activities from today (midnight to now)
-      return activities.filter(activity => {
-        const activityDate = new Date(activity.start_date);
-        return activityDate >= today;
-      });
-      
-    case 'week':
-      // Activities from the last 7 days (including today)
-      const weekAgo = new Date(now);
-      weekAgo.setDate(now.getDate() - 6); // Include today, so go back 6 days
-      return activities.filter(activity => {
-        const activityDate = new Date(activity.start_date);
-        return activityDate >= weekAgo;
-      });
-      
-    case 'month':
-      // Activities from the current month (1st to now)
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      return activities.filter(activity => {
-        const activityDate = new Date(activity.start_date);
-        return activityDate >= startOfMonth;
-      });
-      
-    case 'year':
-      // Activities from the current year (Jan 1st to now)
-      const startOfYear = new Date(now.getFullYear(), 0, 1);
-      return activities.filter(activity => {
-        const activityDate = new Date(activity.start_date);
-        return activityDate >= startOfYear;
-      });
-      
-    case '30days':
-    default:
-      // Activities from the last 30 days (including today)
-      const thirtyDaysAgo = new Date(now);
-      thirtyDaysAgo.setDate(now.getDate() - 29); // Include today, so go back 29 days
-      return activities.filter(activity => {
-        const activityDate = new Date(activity.start_date);
-        return activityDate >= thirtyDaysAgo;
-      });
   }
 }
 

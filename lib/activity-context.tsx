@@ -89,6 +89,7 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
   // Rate limiting constants
   const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes in milliseconds
   const CACHE_MAX_AGE = 30 * 60 * 1000; // 30 minutes in milliseconds
+  const RATE_LIMIT_COOLDOWN = 5 * 60 * 1000; // 5 minutes cooldown after hitting rate limit
 
   // Load goal from localStorage on initial render
   useEffect(() => {
@@ -227,8 +228,15 @@ export function ActivityProvider({ children }: { children: ReactNode }) {
       // Handle rate limiting
       if (response.status === 429) {
         console.log('Rate limit hit, using cached data');
+        const data = await response.json();
         tryLoadingCachedData();
-        setError('Rate limit exceeded. Showing cached data.');
+        
+        // Set a longer cooldown period after hitting rate limit
+        const cooldownEnd = now + RATE_LIMIT_COOLDOWN;
+        localStorage.setItem(CACHE_KEYS.LAST_FETCH, cooldownEnd.toString());
+        setLastFetchTime(cooldownEnd);
+        
+        setError(data.rateLimitInfo?.message || 'Rate limit exceeded. Showing cached data.');
         return;
       }
       
